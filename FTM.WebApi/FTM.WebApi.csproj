@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Models\ClientInfo.cs~RFc70035c.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

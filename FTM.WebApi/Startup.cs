@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using FTM.WebApi.Models;
 using Google.Apis.Auth.AspNetCore;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Util.Store;
@@ -35,7 +36,9 @@ namespace FTM.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddAuthentication(v => {
+            services.Configure<GoogleInfo>(Configuration.GetSection("Google"));
+        
+        services.AddAuthentication(v => {
                 v.DefaultAuthenticateScheme = "Cookie";
                 v.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
                 v.DefaultSignInScheme = "Cookie";

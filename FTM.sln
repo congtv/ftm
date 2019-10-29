@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTM.WebApi", "FTM.WebApi\FTM.WebApi.csproj", "{0C35956E-8473-4DAD-9966-5DB6D577F077}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTM.Api", "FTM.Api\FTM.Api.csproj", "{168B1D98-4463-405D-BE0C-46487EF4D5FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FTM.WebApi", "FTM.WebApi\FTM.WebApi.csproj", "{0C35956E-8473-4DAD-9966-5DB6D577F077}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		{0C35956E-8473-4DAD-9966-5DB6D577F077}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C35956E-8473-4DAD-9966-5DB6D577F077}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C35956E-8473-4DAD-9966-5DB6D577F077}.Release|Any CPU.Build.0 = Release|Any CPU
-		{168B1D98-4463-405D-BE0C-46487EF4D5FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{168B1D98-4463-405D-BE0C-46487EF4D5FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{168B1D98-4463-405D-BE0C-46487EF4D5FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{168B1D98-4463-405D-BE0C-46487EF4D5FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

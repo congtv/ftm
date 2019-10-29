@@ -19,7 +19,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace FTM.Api
+namespace FTM.WebApi
 {
     /// <summary>
     /// Client auth information, loaded from a Google user credential json file.
@@ -29,12 +29,8 @@ namespace FTM.Api
     {
         public static ClientInfo Load()
         {
-            const string ClientSecretFilenameVariable = "client_id.json";
+            const string ClientSecretFilenameVariable = "appsettings.json";
             string clientSecretFilename = Environment.GetEnvironmentVariable(ClientSecretFilenameVariable);
-            //if (string.IsNullOrEmpty(clientSecretFilename))
-            //{
-            //    throw new InvalidOperationException($"Please set the {ClientSecretFilenameVariable} environment variable before running tests.");
-            //}
             var secrets = JObject.Parse(Encoding.UTF8.GetString(File.ReadAllBytes("C:\\client_id.json")))["web"];
             var projectId = secrets["project_id"].Value<string>();
             var clientId = secrets["client_id"].Value<string>();
@@ -47,6 +43,9 @@ namespace FTM.Api
             ProjectId = projectId;
             ClientId = clientId;
             ClientSecret = clientSecret;
+            //AuthUri = "https://accounts.google.com/o/oauth2/auth";
+            //"token_uri": "https://oauth2.googleapis.com/token",
+            //"auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
         }
 
         public string ProjectId { get; }

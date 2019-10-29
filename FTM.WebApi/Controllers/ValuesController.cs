@@ -22,28 +22,8 @@ namespace FTM.WebApi.Controllers
     {
         // GET api/values
         [HttpGet]
-        [Authorize]
-        [GoogleScopedAuthorize("https://www.googleapis.com/auth/calendar")]
-        public async Task<IEnumerable<string>> Get([FromServices] IGoogleAuthProvider auth, [FromServices] ClientInfo clientInfo)
-        //public async Task<IEnumerable<string>> Get()
+        public async Task<IEnumerable<string>> Get()
         {
-            //var cred = await auth.GetCredentialAsync();
-            //var credential = new BaseClientService.Initializer
-            //{
-            //    HttpClientInitializer = cred
-            //};
-            //var service = new CalendarService(credential);
-            //// Define parameters of request.
-            //EventsResource.ListRequest request = service.Events.List("primary");
-            //request.TimeMin = DateTime.Now;
-            //request.ShowDeleted = false;
-            //request.SingleEvents = true;
-            //request.MaxResults = 10;
-            //request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
-
-            //// List events.
-            //Events events = request.Execute();
-            //Console.WriteLine("Upcoming events:");
             var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
             {
                 ClientSecrets = new ClientSecrets
@@ -54,7 +34,7 @@ namespace FTM.WebApi.Controllers
                 DataStore = new FileDataStore("C:\\token.json"), // match the one defined in OnAuthorizationCodeReceived method
             });
             string userId = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-            var tokenResponse = flow.LoadTokenAsync(userId, CancellationToken.None).Result;
+            var tokenResponse = flow.LoadTokenAsync("114604855277760295279", CancellationToken.None).Result;
             var userCredential = new UserCredential(flow, userId, tokenResponse);
             var service = new CalendarService(new BaseClientService.Initializer() { HttpClientInitializer = userCredential});
             // Define parameters of request.

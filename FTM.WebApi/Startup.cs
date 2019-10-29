@@ -5,21 +5,22 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using FTM.WebApi.Entities;
 using FTM.WebApi.Models;
 using Google.Apis.Auth.AspNetCore;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Util.Store;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace FTM.WebApi
 {
@@ -35,20 +36,42 @@ namespace FTM.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            #region Common
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.Configure<GoogleInfo>(Configuration.GetSection("Google"));
-        
-        services.AddAuthentication(v => {
+            #endregion
+
+            #region Reverse proxy support
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+            #endregion
+
+            services.Configure<ClientInfo>(Configuration.GetSection("Google"));
+            services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<ClientInfo>>().Value);
+            services.AddDbContext<FtmDbContext>(options => options.UseSqlite(@"Data Source = C:\FtmDatabase.db3"));
+
+            #region Swagger
+            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "MathApp API", Version = "v1" });
+            });
+            #endregion
+
+            #region Middleware authentication
+            services.AddAuthentication(v => {
                 v.DefaultAuthenticateScheme = "Cookie";
-                v.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                v.DefaultChallengeScheme = "Google";
                 v.DefaultSignInScheme = "Cookie";
             })
             .AddCookie("Cookie")
             .AddGoogleOpenIdConnect("Google", options =>
             {
-                var clientInfo = (ClientInfo)services.First(x => x.ServiceType == typeof(ClientInfo)).ImplementationInstance;
-                options.ClientId = clientInfo.ClientId;
-                options.ClientSecret = clientInfo.ClientSecret;
+                options.ClientId = Configuration["Google:ClientId"];
+                options.ClientSecret = Configuration["Google:ClientSecret"];
                 options.Scope.Add("profile");
                 options.ResponseType = "code id_token";
                 options.Authority = "https://accounts.google.com/";
@@ -63,10 +86,6 @@ namespace FTM.WebApi
                     context.ProtocolMessage.SetParameter("access_type", "offline");
                     return Task.FromResult(0);
                 };
-                options.Events.OnRemoteFailure = (context) =>
-                {
-                    return Task.FromResult(0);
-                };
                 options.Events.OnAuthorizationCodeReceived = async (context) =>
                 {
                     Debug.WriteLine("***AuthorizationCodeReceived");
@@ -75,8 +94,8 @@ namespace FTM.WebApi
                     {
                         ClientSecrets = new Google.Apis.Auth.OAuth2.ClientSecrets
                         {
-                            ClientId = "763053086185-an7kopev3msfad5bdv6cp89srovc1g7f.apps.googleusercontent.com",
-                            ClientSecret = "YUVJEaLeyHgjnItpO2LH2LJe"
+                            ClientId = Configuration["Google:ClientId"],
+                            ClientSecret = Configuration["Google:ClientSecret"]
                         },
                         DataStore = new FileDataStore("C:\\token.json"),
                     });
@@ -92,6 +111,7 @@ namespace FTM.WebApi
                     }
                 };
             });
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -100,6 +120,15 @@ namespace FTM.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                // Enable middleware to serve generated Swagger as a JSON endpoint.
+                app.UseSwagger();
+
+                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
+                // specifying the Swagger JSON endpoint.
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
+                });
             }
 
             app.UseAuthentication();

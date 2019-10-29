@@ -4,6 +4,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using FTM.WebApi.Entities;
+using FTM.WebApi.Models;
 using Google.Apis.Auth.AspNetCore;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
@@ -20,7 +22,15 @@ namespace FTM.WebApi.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        // GET api/values
+        private readonly ClientInfo clientInfo;
+        private readonly FtmDbContext context;
+
+        public ValuesController(ClientInfo clientInfo, FtmDbContext context)
+        {
+            this.clientInfo = clientInfo;
+            this.context = context;
+        }
+
         [HttpGet]
         public async Task<IEnumerable<string>> Get()
         {
@@ -28,8 +38,8 @@ namespace FTM.WebApi.Controllers
             {
                 ClientSecrets = new ClientSecrets
                 {
-                    ClientId = "763053086185-an7kopev3msfad5bdv6cp89srovc1g7f.apps.googleusercontent.com",
-                    ClientSecret = "YUVJEaLeyHgjnItpO2LH2LJe"
+                    ClientId = clientInfo.ClientId,
+                    ClientSecret = clientInfo.ClientSecret,
                 },
                 DataStore = new FileDataStore("C:\\token.json"), // match the one defined in OnAuthorizationCodeReceived method
             });

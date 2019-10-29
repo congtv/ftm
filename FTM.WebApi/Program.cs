@@ -14,13 +14,8 @@ namespace FTM.WebApi
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
-            var clientInfo = ClientInfo.Load();
             return WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .ConfigureServices(services =>
-                {
-                    services.AddSingleton(clientInfo);
-                });
+                .UseStartup<Startup>();
         }
     }
 }

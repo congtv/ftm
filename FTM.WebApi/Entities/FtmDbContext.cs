@@ -9,8 +9,8 @@ namespace FTM.WebApi.Entities
         {
 
         }
-        DbSet<RoomInfo> RoomInfos { get; set; }
-        DbSet<CredentialInfo> CredentialInfos { get; set; }
+        public DbSet<RoomInfo> RoomInfos { get; set; }
+        public DbSet<CredentialInfo> CredentialInfos { get; set; }
 
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{

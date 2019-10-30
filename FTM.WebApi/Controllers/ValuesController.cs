@@ -34,6 +34,11 @@ namespace FTM.WebApi.Controllers
         [HttpGet]
         public async Task<IEnumerable<string>> Get()
         {
+            var room = new RoomInfo();
+            room.RoomId = "primary";
+            room.RoomName = "Lịch chính";
+            context.RoomInfos.Add(room);
+            context.SaveChanges();
             var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
             {
                 ClientSecrets = new ClientSecrets

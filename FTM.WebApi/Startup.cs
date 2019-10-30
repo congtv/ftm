@@ -51,7 +51,7 @@ namespace FTM.WebApi
 
             services.Configure<ClientInfo>(Configuration.GetSection("Google"));
             services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<ClientInfo>>().Value);
-            services.AddDbContext<FtmDbContext>(options => options.UseSqlite(@"Data Source = C:\FtmDatabase.db3"));
+            services.AddDbContext<FtmDbContext>(options => options.UseSqlite(@"Filename = ./FtmDatabase.db3"));
 
             #region Swagger
             // Register the Swagger generator, defining 1 or more Swagger documents

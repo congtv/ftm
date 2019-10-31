@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using FTM.WebApi.Common;
 using FTM.WebApi.Entities;
 using FTM.WebApi.Models;
 using Google.Apis.Auth.AspNetCore;
@@ -51,7 +52,10 @@ namespace FTM.WebApi
 
             services.Configure<ClientInfo>(Configuration.GetSection("Google"));
             services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<ClientInfo>>().Value);
-            services.AddDbContext<FtmDbContext>(options => options.UseSqlite(@"Filename = ./FtmDatabase.db3"));
+
+            services.AddScoped(typeof(FtmDataStore));
+
+            services.AddDbContext<FtmDbContext>(options => options.UseSqlite(Configuration["DefaultConnection"]));
 
             #region Swagger
             // Register the Swagger generator, defining 1 or more Swagger documents
@@ -97,10 +101,10 @@ namespace FTM.WebApi
                             ClientId = Configuration["Google:ClientId"],
                             ClientSecret = Configuration["Google:ClientSecret"]
                         },
-                        DataStore = new FileDataStore("C:\\token.json"),
+                        DataStore = new FtmDataStore(new FtmDbContext(Configuration["DefaultConnection"])),
                     });
                     var tokenResponse = await flow.ExchangeCodeForTokenAsync(
-                        context.Principal.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value,
+                        Constains.UserId,
                         context.ProtocolMessage.Code,
                         redirectUri,
                         CancellationToken.None);

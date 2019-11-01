@@ -54,8 +54,7 @@ namespace FTM.WebApi.Models
                 }
                 else
                 {
-                    var @default = new TokenResponse();
-                    tcs.SetResult((T)@default);
+                    tcs.SetResult(default(T));
                 }
             }
             catch (Exception ex)

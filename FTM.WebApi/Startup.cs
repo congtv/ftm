@@ -82,7 +82,7 @@ namespace FTM.WebApi
                 options.CallbackPath = "/signin-google";
                 options.SignedOutCallbackPath = "/signout-callback-google";
                 options.RemoteSignOutPath = "/signout-google";
-                options.Scope.Add("https://www.googleapis.com/auth/calendar.events.readonly");
+                options.Scope.Add("https://www.googleapis.com/auth/calendar");
                 options.Events.OnRedirectToIdentityProvider = (context) =>
                 {
                     Debug.WriteLine("***RedirectToIdentityProvider");

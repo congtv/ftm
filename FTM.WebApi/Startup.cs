@@ -98,25 +98,34 @@ namespace FTM.WebApi
                 options.Events.OnAuthorizationCodeReceived = async (context) =>
                 {
                     Debug.WriteLine("***AuthorizationCodeReceived");
-                    var redirectUri = "http://localhost:56067/signin-google"; // is not used but required
-                    var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
+
+                    var email = context.JwtSecurityToken.Claims.First(x => x.Type == "email");
+                    if(email.Value == Configuration["Settings:AdminEmail"])
                     {
-                        ClientSecrets = new Google.Apis.Auth.OAuth2.ClientSecrets
+                        var redirectUri = "http://localhost:56067/signin-google"; // is not used but required
+                        var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
                         {
-                            ClientId = Configuration["Google:ClientId"],
-                            ClientSecret = Configuration["Google:ClientSecret"]
-                        },
-                        DataStore = new FtmDataStore(new FtmDbContext(Configuration["DefaultConnection"])),
-                    });
-                    var tokenResponse = await flow.ExchangeCodeForTokenAsync(
-                        Constains.UserId,
-                        context.ProtocolMessage.Code,
-                        redirectUri,
-                        CancellationToken.None);
-                    if (tokenResponse != null)
+                            ClientSecrets = new Google.Apis.Auth.OAuth2.ClientSecrets
+                            {
+                                ClientId = Configuration["Google:ClientId"],
+                                ClientSecret = Configuration["Google:ClientSecret"]
+                            },
+                            DataStore = new FtmDataStore(new FtmDbContext(Configuration["DefaultConnection"])),
+                        });
+                        var tokenResponse = await flow.ExchangeCodeForTokenAsync(
+                            Constains.UserId,
+                            context.ProtocolMessage.Code,
+                            redirectUri,
+                            CancellationToken.None);
+                        if (tokenResponse != null)
+                        {
+                            context.HandleCodeRedemption(tokenResponse.AccessToken, tokenResponse.IdToken);
+                            var properties = new AuthenticationProperties { RedirectUri = redirectUri };
+                        }
+                    }
+                    else
                     {
-                        context.HandleCodeRedemption(tokenResponse.AccessToken, tokenResponse.IdToken);
-                        var properties = new AuthenticationProperties { RedirectUri = redirectUri };
+                        throw new InvalidOperationException();
                     }
                 };
             });

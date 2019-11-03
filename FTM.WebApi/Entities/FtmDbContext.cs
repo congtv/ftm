@@ -14,7 +14,7 @@ namespace FTM.WebApi.Entities
         {
 
         }
-        public DbSet<FtmRoomInfo> RoomInfos { get; set; }
+        public DbSet<FtmCalendarInfo> RoomInfos { get; set; }
         public DbSet<FtmTokenResponse> FtmTokenResponses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

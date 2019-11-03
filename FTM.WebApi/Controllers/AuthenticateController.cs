@@ -44,10 +44,10 @@ namespace FTM.WebApi.Controllers
                     {
                         foreach (var calendar in result.Items)
                         {
-                            FtmRoomInfo room = new FtmRoomInfo()
+                            FtmCalendarInfo room = new FtmCalendarInfo()
                             {
-                                RoomId = calendar.Id,
-                                RoomName = calendar.Summary,
+                                CalendarId = calendar.Id,
+                                CalendarName = calendar.Summary,
                                 Description = calendar.Description,
                                 IsUseable = false
                             };
@@ -66,10 +66,10 @@ namespace FTM.WebApi.Controllers
                         //Sync
                         foreach (var calendar in result.Items)
                         {
-                            FtmRoomInfo room = new FtmRoomInfo()
+                            FtmCalendarInfo room = new FtmCalendarInfo()
                             {
-                                RoomId = calendar.Id,
-                                RoomName = calendar.Summary,
+                                CalendarId = calendar.Id,
+                                CalendarName = calendar.Summary,
                                 Description = calendar.Description,
                                 IsUseable = false
                             };

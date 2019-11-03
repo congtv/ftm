@@ -16,18 +16,18 @@ namespace FTM.WebApi.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.11-servicing-32099");
 
-            modelBuilder.Entity("FTM.WebApi.Entities.FtmRoomInfo", b =>
+            modelBuilder.Entity("FTM.WebApi.Entities.FtmCalendarInfo", b =>
                 {
-                    b.Property<string>("RoomId")
+                    b.Property<string>("CalendarId")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("CalendarName");
 
                     b.Property<string>("Description");
 
                     b.Property<bool>("IsUseable");
 
-                    b.Property<string>("RoomName");
-
-                    b.HasKey("RoomId");
+                    b.HasKey("CalendarId");
 
                     b.ToTable("RoomInfos");
                 });

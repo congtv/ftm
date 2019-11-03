@@ -1,4 +1,7 @@
-﻿using System;
+﻿using FTM.WebApi.Entities;
+using FTM.WebApi.Models;
+using Google.Apis.Calendar.v3.Data;
+using System;
 
 namespace FTM.WebApi.Utility
 {
@@ -66,15 +69,54 @@ namespace FTM.WebApi.Utility
             return source.Hour <= compare.Hours && source.Minute <= compare.Minutes;
         }
 
-        public static bool IsTimeNotBetween(this DateTime source, TimeSpan start, TimeSpan end)
+        public static bool IsTimeBetween(this DateTime source, TimeSpan start, TimeSpan end)
         {
-            return (source.Hour < start.Hours || (source.Hour == start.Hours && source.Minute < start.Minutes) 
-                    || source.Hour > end.Hours || (source.Hour == end.Hours && source.Minute > end.Minutes));
+            var startDateTime = source.CreateTime(start);
+            var endDateTime = source.CreateTime(end);
+            return startDateTime <= source && source <= endDateTime;
         }
 
         public static DateTime CreateTime(this DateTime source, TimeSpan time)
         {
             return new DateTime(source.Year, source.Month, source.Day, time.Hours, time.Minutes, time.Seconds);
+        }
+
+        public static string CreateLinkParam(this DateTime source)
+        {
+            return $"{source.Year}/{source.Month}/{source.Day}";
+        }
+
+        public static EventErrorResult CreateErrorResult(this Event @event)
+        {
+            return new EventErrorResult()
+            {
+                Summary = @event.Summary,
+                Creator = @event.Creator.Email,
+                HtmlLink = @event.HtmlLink,
+                Description = @event.Description
+            };
+        }
+
+        public static GetEventResultModel CreateEventResult(this Event @event)
+        {
+            return new GetEventResultModel()
+            {
+                CalendarId = @event.Organizer.Email,
+                CalendarName = @event.Organizer.DisplayName,
+                HtmlLink = @event.HtmlLink
+            };
+        }
+
+
+        public static CalendarInfoDto CreateResult(this FtmCalendarInfo calendar)
+        {
+            return new CalendarInfoDto()
+            {
+                RoomName = calendar.CalendarName,
+                Description = calendar.Description,
+                IsUseable = true,
+                RoomId = calendar.CalendarId
+            };
         }
     }
 }

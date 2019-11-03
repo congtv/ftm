@@ -24,6 +24,8 @@ namespace FTM.WebApi.Controllers
         private readonly FtmDataStore dataStore;
         private readonly FtmDbContext context;
         private readonly IConfiguration configuration;
+        private readonly string baseLink = @"https://calendar.google.com/calendar/r/day/";
+        private TimeSpan startTimeInDay, endTimeInDay;
 
         public EventsController(ClientInfo clientInfo, FtmDbContext context, FtmDataStore dataStore, IConfiguration configuration)
         {
@@ -33,7 +35,7 @@ namespace FTM.WebApi.Controllers
             this.configuration = configuration;
         }
 
-        [HttpGet]
+        [HttpGet("")]
         public async Task<IActionResult> Get([FromBody] GetEventRequestModel requestModel)
         {
             if (requestModel.StartDateTime < requestModel.EndDateTime)
@@ -45,7 +47,7 @@ namespace FTM.WebApi.Controllers
 
                 if (requestModel.CalendarIds.Any())
                 {
-                    var requestCalendars = context.RoomInfos.Where(x => requestModel.CalendarIds.Contains(x.RoomId)).ToArray();
+                    var requestCalendars = context.RoomInfos.Where(x => requestModel.CalendarIds.Contains(x.CalendarId)).ToArray();
                     var resultItems = await GetFreeTimes(service, requestCalendars, requestModel);
                     result.AddRange(resultItems);
                 }
@@ -70,23 +72,24 @@ namespace FTM.WebApi.Controllers
         /// <param name="calendars"></param>
         /// <param name="requestModel"></param>
         /// <returns></returns>
-        private async Task<IEnumerable<GetEventResultModel>> GetFreeTimes(CalendarService service, FtmRoomInfo[] calendars, GetEventRequestModel requestModel)
+        private async Task<IEnumerable<GetEventResultModel>> GetFreeTimes(CalendarService service, FtmCalendarInfo[] calendars, GetEventRequestModel requestModel)
         {
             requestModel.StartDateTime = DateTime.Now.AddDays(1).CreateTime(new TimeSpan(0, 0, 0));
             requestModel.EndDateTime = DateTime.Now.AddDays(100);
-            var resultDic = GetDateRangeRequest<List<GetEventResultModel>>(requestModel);
+
+            
+            var resultDic = GetDateRangeRequest<List<GetEventResultModel>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
 
             #region Get time work in config
             var startTimeInDayConfig = configuration["Settings:StartTimeInDay"];
             var endTimeInDayConfig = configuration["Settings:EndTimeInDay"];
-            TimeSpan startTimeInDay, endTimeInDay;
             startTimeInDay = TimeSpan.TryParse(startTimeInDayConfig, out startTimeInDay) ? startTimeInDay : new TimeSpan(7, 0, 0);
             endTimeInDay = TimeSpan.TryParse(endTimeInDayConfig, out endTimeInDay) ? endTimeInDay : new TimeSpan(20, 0, 0);
             #endregion
 
             foreach (var calendar in calendars)
             {
-                EventsResource.ListRequest request = service.Events.List(calendar.RoomId);
+                EventsResource.ListRequest request = service.Events.List(calendar.CalendarId);
                 request.TimeMin = requestModel.StartDateTime;
                 request.TimeMax = requestModel.EndDateTime;
                 request.ShowDeleted = false;
@@ -98,7 +101,7 @@ namespace FTM.WebApi.Controllers
                 var itemDic = events.Items.GroupBy(x => x.Start.DateTime.Value.Date, x => x).ToDictionary(x => x.Key, x => x.ToList());
 
                 #region Check day hasn't any event
-                var dateDic = GetDateRangeRequest<List<Event>>(requestModel);
+                var dateDic = GetDateRangeRequest<List<Event>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
                 foreach(var key in itemDic.Keys)
                 {
                     dateDic[key] = itemDic[key];
@@ -110,11 +113,11 @@ namespace FTM.WebApi.Controllers
                     {
                         resultDic[dateKey].Add(new GetEventResultModel()
                         {
-                            CalendarId = "exadata.info_e5o5kj5jmng7q9au4ga2fsp3a4@group.calendar.google.com",
-                            //CalendarId = calendar,
+                            CalendarId = calendar.CalendarId,
                             CalendarName = events.Items.First().Organizer.DisplayName,
                             StartTime = dateKey.CreateTime(startTimeInDay),
                             EndTime = dateKey.CreateTime(endTimeInDay),
+                            HtmlLink = $"{baseLink}{dateKey.CreateLinkParam()}"
                         });
                     }
                 }
@@ -126,7 +129,7 @@ namespace FTM.WebApi.Controllers
 
                     for (var index = 0; index < listEventByDay.Count(); index++)
                     {
-                        if (CheckEvent(index, listEventByDay, startTimeInDay, endTimeInDay, out List<GetEventResultModel> result))
+                        if (CheckEvent(index, listEventByDay, out List<GetEventResultModel> result))
                         {
                             if (resultDic.TryGetValue(key, out List<GetEventResultModel> dicResult))
                             {
@@ -146,20 +149,14 @@ namespace FTM.WebApi.Controllers
         /// <typeparam name="T"></typeparam>
         /// <param name="requestModel"></param>
         /// <returns></returns>
-        private Dictionary<DateTime, T> GetDateRangeRequest<T>(GetEventRequestModel requestModel) where T: new()
+        private Dictionary<DateTime, T> GetDateRangeRequest<T>(DateTime start, DateTime end) where T: new()
         {
             Dictionary<DateTime, T> dateDic = new Dictionary<DateTime, T>();
-
-            for(int year = requestModel.StartDateTime.Value.Year; year <= requestModel.EndDateTime.Value.Year; year ++)
+            var currentDay = start;
+            while (currentDay.AddDays(1) <= end)
             {
-                for(int month = requestModel.StartDateTime.Value.Month; month <= requestModel.EndDateTime.Value.Month; month++)
-                {
-                    for(int day = requestModel.StartDateTime.Value.Day; day <= requestModel.EndDateTime.Value.Day; day++)
-                    {
-                        var currentDay = new DateTime(year, month, day, 0, 0, 0);
-                        dateDic.Add(currentDay, new T());
-                    }
-                }
+                currentDay = currentDay.AddDays(1).CreateTime(new TimeSpan(0, 0, 0));
+                dateDic.Add(currentDay, new T());
             }
             return dateDic;
         }
@@ -173,18 +170,18 @@ namespace FTM.WebApi.Controllers
         /// <param name="endTimeInDay"></param>
         /// <param name="results"></param>
         /// <returns></returns>
-        private bool CheckEvent(int index,List<Event> groupArray, TimeSpan startTimeInDay, TimeSpan endTimeInDay, out List<GetEventResultModel> results)
+        private bool CheckEvent(int index,List<Event> groupArray, out List<GetEventResultModel> results)
         {
             results = new List<GetEventResultModel>();
 
             var currentEvent = groupArray[index];
-            var result = Creator.CreateEventResult(currentEvent);
+            var result = currentEvent.CreateEventResult();
 
             var startCurrentEvent = currentEvent.Start.DateTime.Value;
             var endCurrentEvent = currentEvent.End.DateTime.Value;
 
-            if (startCurrentEvent.IsTimeNotBetween(startTimeInDay, endTimeInDay) ||
-                endCurrentEvent.IsTimeNotBetween(startTimeInDay, endTimeInDay))
+            if (!startCurrentEvent.IsTimeBetween(startTimeInDay, endTimeInDay) ||
+                !endCurrentEvent.IsTimeBetween(startTimeInDay, endTimeInDay))
                 return false;
 
             else if(groupArray.First() == currentEvent)
@@ -194,13 +191,15 @@ namespace FTM.WebApi.Controllers
 
                 result.StartTime = startCurrentEvent.CreateTime(startTimeInDay);
                 result.EndTime = startCurrentEvent;
+                result.HtmlLink = this.baseLink + startCurrentEvent.CreateLinkParam();
                 results.Add(result);
 
                 if(groupArray.Count() == 1)
                 {
-                    var lastItem = Creator.CreateEventResult(currentEvent);
+                    var lastItem = currentEvent.CreateEventResult();
                     lastItem.StartTime = endCurrentEvent;
                     lastItem.EndTime = endCurrentEvent.CreateTime(endTimeInDay);
+                    lastItem.HtmlLink = this.baseLink + endCurrentEvent.CreateLinkParam();
                     results.Add(lastItem);
                 }
 
@@ -218,6 +217,7 @@ namespace FTM.WebApi.Controllers
                 {
                     result.StartTime = endCurrentEvent;
                     result.EndTime = endCurrentEvent.CreateTime(endTimeInDay);
+                    result.HtmlLink = this.baseLink + endCurrentEvent.CreateLinkParam();
                     results.Add(result);
                 }
                 else
@@ -243,7 +243,7 @@ namespace FTM.WebApi.Controllers
         private bool GetFreeTimeByNextEvent(int currentIndex, List<Event> source, out GetEventResultModel result)
         {
             var currentEvent = source[currentIndex];
-            result = Creator.CreateEventResult(currentEvent);
+            result = currentEvent.CreateEventResult();
 
             if (source.Count == currentIndex + 1)
                 return false;
@@ -257,11 +257,88 @@ namespace FTM.WebApi.Controllers
             {
                 result.StartTime = currentEvent.End.DateTime.Value;
                 result.EndTime = startNextEvent;
+                result.HtmlLink = this.baseLink + currentEvent.End.DateTime.Value.CreateLinkParam();
                 return true;
             }
             else
             {
                 return false;
+            }
+        }
+
+        [HttpGet("violate")]
+        public async Task<IActionResult> GetViolateEvents()
+        {
+            try
+            {
+                var startTimeInDayConfig = configuration["Settings:StartTimeInDay"];
+                var endTimeInDayConfig = configuration["Settings:EndTimeInDay"];
+                startTimeInDay = TimeSpan.TryParse(startTimeInDayConfig, out startTimeInDay) ? startTimeInDay : new TimeSpan(7, 0, 0);
+                endTimeInDay = TimeSpan.TryParse(endTimeInDayConfig, out endTimeInDay) ? endTimeInDay : new TimeSpan(20, 0, 0);
+                var service = new CalendarService(BaseClientServiceCreator.Create(clientInfo, dataStore));
+                var results = new List<EventErrorResult>();
+                var usableCalendars = context.RoomInfos.Where(x => x.IsUseable).ToArray();
+                var timeMin = DateTime.Now;
+                var timeMax = int.TryParse(configuration["CheckDay"], out int day) ? DateTime.Now.AddDays(day) : DateTime.Now.AddDays(30);
+
+                foreach (var calendar in usableCalendars)
+                {
+                    EventsResource.ListRequest request = service.Events.List(calendar.CalendarId);
+                    request.TimeMin = timeMin;
+                    request.TimeMax = timeMax;
+                    request.ShowDeleted = false;
+                    request.SingleEvents = true;
+                    request.MaxResults = 999;
+                    request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
+                    Events events = await request.ExecuteAsync();
+
+                    var itemDic = events.Items.GroupBy(x => x.Start.DateTime.Value.Date, x => x).ToDictionary(x => x.Key, x => x.ToList());
+
+                    foreach (var key in itemDic.Keys)
+                    {
+                        var listEventByDay = itemDic[key];
+
+                        for (var index = 0; index < listEventByDay.Count(); index++)
+                        {
+                            if (CheckViolateEvent(index, listEventByDay, out Event error))
+                            {
+                                results.Add(error.CreateErrorResult());
+                            }
+                        }
+                    }
+                }
+
+                return Ok(results);
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
+
+        private bool CheckViolateEvent(int index, List<Event> groupArray, out Event result)
+        {
+            result = new Event();
+            var currentEvent = groupArray[index];
+            var startCurrentEvent = currentEvent.Start.DateTime.Value;
+            var endCurrentEvent = currentEvent.End.DateTime.Value;
+
+            if (!startCurrentEvent.IsTimeBetween(this.startTimeInDay, this.endTimeInDay) ||
+                !endCurrentEvent.IsTimeBetween(this.startTimeInDay, this.endTimeInDay) ||
+                groupArray.Count < 1 ||
+                groupArray.Last() == currentEvent)
+                return false;
+            else
+            {
+                var nextEvent = groupArray[index + 1];
+                var startNextEvent = nextEvent.Start.DateTime.Value;
+                if (startNextEvent < endCurrentEvent)
+                {
+                    result = nextEvent.Created > currentEvent.Created ? nextEvent : currentEvent;
+                    return true;
+                }
+                else
+                    return false;
             }
         }
     }

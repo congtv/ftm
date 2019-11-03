@@ -30,14 +30,14 @@ namespace FTM.WebApi.Migrations
                 name: "RoomInfos",
                 columns: table => new
                 {
-                    RoomId = table.Column<string>(nullable: false),
-                    RoomName = table.Column<string>(nullable: true),
+                    CalendarId = table.Column<string>(nullable: false),
+                    CalendarName = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     IsUseable = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RoomInfos", x => x.RoomId);
+                    table.PrimaryKey("PK_RoomInfos", x => x.CalendarId);
                 });
         }
 

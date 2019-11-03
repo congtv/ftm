@@ -5,16 +5,17 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FTM.WebApi.Utility;
 
 namespace FTM.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RoomsController : ControllerBase
+    public class CalendarController : ControllerBase
     {
         private readonly FtmDbContext context;
 
-        public RoomsController(FtmDbContext context)
+        public CalendarController(FtmDbContext context)
         {
             this.context = context;
         }
@@ -25,10 +26,10 @@ namespace FTM.WebApi.Controllers
         {
             try
             {
-                var rooms = context.RoomInfos.ToArray();
-                if (!rooms.Any())
+                var calendars = context.RoomInfos.ToArray();
+                if (!calendars.Any())
                     return NoContent();
-                var result = rooms.Select(x => RoomInfoDto.Create(x));
+                var result = calendars.Select(x => x.CreateResult());
                 return Ok(result);
             }
             catch
@@ -39,21 +40,21 @@ namespace FTM.WebApi.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> UpdateRoomsUsable([FromBody] IEnumerable<RoomInfoDto> roomInfoDtos)
+        public async Task<IActionResult> UpdateRoomsUsable([FromBody] IEnumerable<CalendarInfoDto> calendarInfoDto)
         {
             using (var transaction = context.Database.BeginTransaction())
             {
                 try
                 {
-                    var rooms = context.RoomInfos.ToArray();
+                    var calendars = context.RoomInfos.ToArray();
 
-                    foreach (var room in rooms)
+                    foreach (var calendar in calendars)
                     {
-                        var editedRoom = roomInfoDtos.First(x => x.RoomId == room.RoomId);
+                        var editedRoom = calendarInfoDto.First(x => x.RoomId == calendar.CalendarId);
 
-                        room.RoomName = editedRoom.RoomName;
-                        room.IsUseable = editedRoom.IsUseable;
-                        room.Description = editedRoom.Description;
+                        calendar.CalendarName = editedRoom.RoomName;
+                        calendar.IsUseable = editedRoom.IsUseable;
+                        calendar.Description = editedRoom.Description;
                     }
                     await context.SaveChangesAsync();
                     transaction.Commit();

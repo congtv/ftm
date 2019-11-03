@@ -27,7 +27,7 @@ namespace FTM.WebApi.Controllers
         }
 
         [HttpGet]
-        [Authorize()]
+        [Authorize]
         public async Task<IActionResult> Authenticate()
         {
             using(var transaction = context.Database.BeginTransaction())

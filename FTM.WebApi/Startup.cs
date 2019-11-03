@@ -70,8 +70,13 @@ namespace FTM.WebApi
                 v.DefaultAuthenticateScheme = "Cookie";
                 v.DefaultChallengeScheme = "Google";
                 v.DefaultSignInScheme = "Cookie";
+                v.DefaultSignOutScheme = "Cookie";
             })
-            .AddCookie("Cookie")
+            .AddCookie("Cookie", op => 
+            {
+                op.ExpireTimeSpan = TimeSpan.FromSeconds(30);
+                op.SlidingExpiration = true;
+            })
             .AddGoogleOpenIdConnect("Google", options =>
             {
                 options.ClientId = Configuration["Google:ClientId"];

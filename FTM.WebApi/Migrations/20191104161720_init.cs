@@ -8,6 +8,20 @@ namespace FTM.WebApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "FtmCalendarInfo",
+                columns: table => new
+                {
+                    CalendarId = table.Column<string>(nullable: false),
+                    CalendarName = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    IsUseable = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FtmCalendarInfo", x => x.CalendarId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FtmTokenResponses",
                 columns: table => new
                 {
@@ -25,29 +39,15 @@ namespace FTM.WebApi.Migrations
                 {
                     table.PrimaryKey("PK_FtmTokenResponses", x => x.UserId);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "RoomInfos",
-                columns: table => new
-                {
-                    CalendarId = table.Column<string>(nullable: false),
-                    CalendarName = table.Column<string>(nullable: true),
-                    Description = table.Column<string>(nullable: true),
-                    IsUseable = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RoomInfos", x => x.CalendarId);
-                });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "FtmTokenResponses");
+                name: "FtmCalendarInfo");
 
             migrationBuilder.DropTable(
-                name: "RoomInfos");
+                name: "FtmTokenResponses");
         }
     }
 }

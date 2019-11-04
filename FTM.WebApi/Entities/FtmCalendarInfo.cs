@@ -6,6 +6,7 @@ namespace FTM.WebApi.Entities
     {
         [Key]
         public string CalendarId { get; set; }
+
         public string CalendarName { get; set; }
         public string Description { get; set; }
         public bool IsUseable { get; set; }

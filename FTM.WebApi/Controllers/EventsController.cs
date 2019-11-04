@@ -1,12 +1,8 @@
-﻿using FTM.WebApi.Common;
-using FTM.WebApi.Entities;
+﻿using FTM.WebApi.Entities;
 using FTM.WebApi.Models;
 using FTM.WebApi.Utility;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
-using Google.Apis.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -24,7 +20,7 @@ namespace FTM.WebApi.Controllers
         private readonly FtmDataStore dataStore;
         private readonly FtmDbContext context;
         private readonly IConfiguration configuration;
-        private readonly string baseLink = @"https://calendar.google.com/calendar/r/day/";
+        private readonly string baseLink;
         private TimeSpan startTimeInDay, endTimeInDay;
 
         public EventsController(ClientInfo clientInfo, FtmDbContext context, FtmDataStore dataStore, IConfiguration configuration)
@@ -33,6 +29,7 @@ namespace FTM.WebApi.Controllers
             this.context = context;
             this.dataStore = dataStore;
             this.configuration = configuration;
+            this.baseLink = this.configuration["Settings:BaseLink"];
         }
 
         [HttpGet("")]
@@ -47,13 +44,13 @@ namespace FTM.WebApi.Controllers
 
                 if (requestModel.CalendarIds.Any())
                 {
-                    var requestCalendars = context.RoomInfos.Where(x => requestModel.CalendarIds.Contains(x.CalendarId)).ToArray();
+                    var requestCalendars = context.FtmCalendarInfo.Where(x => requestModel.CalendarIds.Contains(x.CalendarId)).ToArray();
                     var resultItems = await GetFreeTimes(service, requestCalendars, requestModel);
                     result.AddRange(resultItems);
                 }
                 else
                 {
-                    var usableCalendars = context.RoomInfos.Where(x => x.IsUseable).ToArray();
+                    var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable).ToArray();
                     var resultItems = await GetFreeTimes(service, usableCalendars, requestModel);
                     result.AddRange(resultItems);
                 }
@@ -77,15 +74,16 @@ namespace FTM.WebApi.Controllers
             requestModel.StartDateTime = DateTime.Now.AddDays(1).CreateTime(new TimeSpan(0, 0, 0));
             requestModel.EndDateTime = DateTime.Now.AddDays(100);
 
-            
             var resultDic = GetDateRangeRequest<List<GetEventResultModel>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
 
             #region Get time work in config
+
             var startTimeInDayConfig = configuration["Settings:StartTimeInDay"];
             var endTimeInDayConfig = configuration["Settings:EndTimeInDay"];
             startTimeInDay = TimeSpan.TryParse(startTimeInDayConfig, out startTimeInDay) ? startTimeInDay : new TimeSpan(7, 0, 0);
             endTimeInDay = TimeSpan.TryParse(endTimeInDayConfig, out endTimeInDay) ? endTimeInDay : new TimeSpan(20, 0, 0);
-            #endregion
+
+            #endregion Get time work in config
 
             foreach (var calendar in calendars)
             {
@@ -97,17 +95,18 @@ namespace FTM.WebApi.Controllers
                 request.MaxResults = 999;
                 request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
                 Events events = await request.ExecuteAsync();
-              
+
                 var itemDic = events.Items.GroupBy(x => x.Start.DateTime.Value.Date, x => x).ToDictionary(x => x.Key, x => x.ToList());
 
                 #region Check day hasn't any event
+
                 var dateDic = GetDateRangeRequest<List<Event>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
-                foreach(var key in itemDic.Keys)
+                foreach (var key in itemDic.Keys)
                 {
                     dateDic[key] = itemDic[key];
                 }
 
-                foreach(var dateKey in dateDic.Keys)
+                foreach (var dateKey in dateDic.Keys)
                 {
                     if (dateDic[dateKey].Count == 0)
                     {
@@ -121,9 +120,10 @@ namespace FTM.WebApi.Controllers
                         });
                     }
                 }
-                #endregion
 
-                foreach(var key in itemDic.Keys)
+                #endregion Check day hasn't any event
+
+                foreach (var key in itemDic.Keys)
                 {
                     var listEventByDay = itemDic[key];
 
@@ -149,7 +149,7 @@ namespace FTM.WebApi.Controllers
         /// <typeparam name="T"></typeparam>
         /// <param name="requestModel"></param>
         /// <returns></returns>
-        private Dictionary<DateTime, T> GetDateRangeRequest<T>(DateTime start, DateTime end) where T: new()
+        private Dictionary<DateTime, T> GetDateRangeRequest<T>(DateTime start, DateTime end) where T : new()
         {
             Dictionary<DateTime, T> dateDic = new Dictionary<DateTime, T>();
             var currentDay = start;
@@ -170,7 +170,7 @@ namespace FTM.WebApi.Controllers
         /// <param name="endTimeInDay"></param>
         /// <param name="results"></param>
         /// <returns></returns>
-        private bool CheckEvent(int index,List<Event> groupArray, out List<GetEventResultModel> results)
+        private bool CheckEvent(int index, List<Event> groupArray, out List<GetEventResultModel> results)
         {
             results = new List<GetEventResultModel>();
 
@@ -183,8 +183,7 @@ namespace FTM.WebApi.Controllers
             if (!startCurrentEvent.IsTimeBetween(startTimeInDay, endTimeInDay) ||
                 !endCurrentEvent.IsTimeBetween(startTimeInDay, endTimeInDay))
                 return false;
-
-            else if(groupArray.First() == currentEvent)
+            else if (groupArray.First() == currentEvent)
             {
                 if (startCurrentEvent.IsTimeEquals(startTimeInDay))
                     return false;
@@ -194,7 +193,7 @@ namespace FTM.WebApi.Controllers
                 result.HtmlLink = this.baseLink + startCurrentEvent.CreateLinkParam();
                 results.Add(result);
 
-                if(groupArray.Count() == 1)
+                if (groupArray.Count() == 1)
                 {
                     var lastItem = currentEvent.CreateEventResult();
                     lastItem.StartTime = endCurrentEvent;
@@ -203,16 +202,15 @@ namespace FTM.WebApi.Controllers
                     results.Add(lastItem);
                 }
 
-                if (GetFreeTimeByNextEvent(currentIndex: 0, groupArray, out GetEventResultModel nextItem))
+                if (GetFreeTimeByNextEvent(0, groupArray, out GetEventResultModel nextItem))
                 {
                     results.Add(nextItem);
                 }
             }
-            else if(groupArray.Last() == currentEvent)
+            else if (groupArray.Last() == currentEvent)
             {
                 if (endCurrentEvent.IsTimeEquals(endTimeInDay))
                     return false;
-
                 else if (endCurrentEvent.IsTimeLessThan(endTimeInDay))
                 {
                     result.StartTime = endCurrentEvent;
@@ -227,7 +225,7 @@ namespace FTM.WebApi.Controllers
             }
             else
             {
-                if(GetFreeTimeByNextEvent(index, groupArray, out result))
+                if (GetFreeTimeByNextEvent(index, groupArray, out result))
                     results.Add(result);
             }
             return true;
@@ -277,9 +275,9 @@ namespace FTM.WebApi.Controllers
                 endTimeInDay = TimeSpan.TryParse(endTimeInDayConfig, out endTimeInDay) ? endTimeInDay : new TimeSpan(20, 0, 0);
                 var service = new CalendarService(BaseClientServiceCreator.Create(clientInfo, dataStore));
                 var results = new List<EventErrorResult>();
-                var usableCalendars = context.RoomInfos.Where(x => x.IsUseable).ToArray();
+                var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable).ToArray();
                 var timeMin = DateTime.Now;
-                var timeMax = int.TryParse(configuration["CheckDay"], out int day) ? DateTime.Now.AddDays(day) : DateTime.Now.AddDays(30);
+                var timeMax = int.TryParse(configuration["CheckViolateInDay"], out int day) ? DateTime.Now.AddDays(day) : DateTime.Now.AddDays(30);
 
                 foreach (var calendar in usableCalendars)
                 {

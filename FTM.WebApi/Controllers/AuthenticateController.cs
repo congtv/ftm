@@ -4,8 +4,6 @@ using FTM.WebApi.Utility;
 using Google.Apis.Calendar.v3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,18 +25,18 @@ namespace FTM.WebApi.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize()]
         public async Task<IActionResult> Authenticate()
         {
-            using(var transaction = context.Database.BeginTransaction())
+            using (var transaction = context.Database.BeginTransaction())
             {
                 var service = new CalendarService(BaseClientServiceCreator.Create(clientInfo, dataStore));
                 // Define parameters of request.
                 var request = service.CalendarList.List();
                 var result = await request.ExecuteAsync();
 
-                var roomControls = context.RoomInfos.ToArray();
-                if (!roomControls.Any())
+                var calendars = context.FtmCalendarInfo.ToArray();
+                if (!calendars.Any())
                 {
                     if (result.Items.Any())
                     {
@@ -51,17 +49,17 @@ namespace FTM.WebApi.Controllers
                                 Description = calendar.Description,
                                 IsUseable = false
                             };
-                            context.RoomInfos.Add(room);
+                            context.FtmCalendarInfo.Add(room);
                         }
                         await context.SaveChangesAsync();
                     }
                 }
                 else
                 {
-                    if (roomControls.Length != result.Items.Count)
+                    if (calendars.Length != result.Items.Count)
                     {
                         //Remove all room
-                        context.RoomInfos.RemoveRange(roomControls);
+                        context.FtmCalendarInfo.RemoveRange(calendars);
 
                         //Sync
                         foreach (var calendar in result.Items)
@@ -73,7 +71,7 @@ namespace FTM.WebApi.Controllers
                                 Description = calendar.Description,
                                 IsUseable = false
                             };
-                            context.RoomInfos.Add(room);
+                            context.FtmCalendarInfo.Add(room);
                         }
                         await context.SaveChangesAsync();
                     }

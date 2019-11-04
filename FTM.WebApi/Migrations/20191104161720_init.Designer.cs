@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FTM.WebApi.Migrations
 {
     [DbContext(typeof(FtmDbContext))]
-    [Migration("20191103162235_init")]
+    [Migration("20191104161720_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,7 @@ namespace FTM.WebApi.Migrations
 
                     b.HasKey("CalendarId");
 
-                    b.ToTable("RoomInfos");
+                    b.ToTable("FtmCalendarInfo");
                 });
 
             modelBuilder.Entity("FTM.WebApi.Entities.FtmTokenResponse", b =>

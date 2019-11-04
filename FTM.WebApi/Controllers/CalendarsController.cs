@@ -1,21 +1,21 @@
 ﻿using FTM.WebApi.Entities;
 using FTM.WebApi.Models;
+using FTM.WebApi.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FTM.WebApi.Utility;
 
 namespace FTM.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CalendarController : ControllerBase
+    public class CalendarsController : ControllerBase
     {
         private readonly FtmDbContext context;
 
-        public CalendarController(FtmDbContext context)
+        public CalendarsController(FtmDbContext context)
         {
             this.context = context;
         }
@@ -26,7 +26,7 @@ namespace FTM.WebApi.Controllers
         {
             try
             {
-                var calendars = context.RoomInfos.ToArray();
+                var calendars = context.FtmCalendarInfo.ToArray();
                 if (!calendars.Any())
                     return NoContent();
                 var result = calendars.Select(x => x.CreateResult());
@@ -46,7 +46,9 @@ namespace FTM.WebApi.Controllers
             {
                 try
                 {
-                    var calendars = context.RoomInfos.ToArray();
+                    if (calendarInfoDto.Count() == 0)
+                        return BadRequest();
+                    var calendars = context.FtmCalendarInfo.ToArray();
 
                     foreach (var calendar in calendars)
                     {

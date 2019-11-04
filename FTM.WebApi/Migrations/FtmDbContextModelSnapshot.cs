@@ -29,7 +29,7 @@ namespace FTM.WebApi.Migrations
 
                     b.HasKey("CalendarId");
 
-                    b.ToTable("RoomInfos");
+                    b.ToTable("FtmCalendarInfo");
                 });
 
             modelBuilder.Entity("FTM.WebApi.Entities.FtmTokenResponse", b =>

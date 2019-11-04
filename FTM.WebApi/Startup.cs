@@ -1,54 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using FTM.WebApi.Common;
+﻿using FTM.WebApi.Common;
 using FTM.WebApi.Entities;
 using FTM.WebApi.Models;
-using Google.Apis.Auth.AspNetCore;
 using Google.Apis.Auth.OAuth2.Flows;
-using Google.Apis.Util.Store;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FTM.WebApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            Enviroment = env;
         }
 
         public IConfiguration Configuration { get; }
+        public IHostingEnvironment Enviroment { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             #region Common
+
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            #endregion
+
+            #endregion Common
 
             #region Reverse proxy support
+
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders =
                     ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
-            #endregion
+
+            #endregion Reverse proxy support
 
             services.Configure<ClientInfo>(Configuration.GetSection("Google"));
             services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<ClientInfo>>().Value);
@@ -58,23 +61,27 @@ namespace FTM.WebApi
             services.AddDbContext<FtmDbContext>(options => options.UseSqlite(Configuration["DefaultConnection"]));
 
             #region Swagger
+
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "MathApp API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = "Free Time Manager API", Version = "v1" });
             });
-            #endregion
+
+            #endregion Swagger
 
             #region Middleware authentication
-            services.AddAuthentication(v => {
+
+            services.AddAuthentication(v =>
+            {
                 v.DefaultAuthenticateScheme = "Cookie";
                 v.DefaultChallengeScheme = "Google";
                 v.DefaultSignInScheme = "Cookie";
                 v.DefaultSignOutScheme = "Cookie";
             })
-            .AddCookie("Cookie", op => 
+            .AddCookie("Cookie", op =>
             {
-                op.ExpireTimeSpan = TimeSpan.FromSeconds(30);
+                op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30); ;
                 op.SlidingExpiration = true;
             })
             .AddGoogleOpenIdConnect("Google", options =>
@@ -100,9 +107,25 @@ namespace FTM.WebApi
                     Debug.WriteLine("***AuthorizationCodeReceived");
 
                     var email = context.JwtSecurityToken.Claims.First(x => x.Type == "email");
-                    if(email.Value == Configuration["Settings:AdminEmail"])
+                    if (email.Value == Configuration["Settings:AdminEmail"])
                     {
-                        var redirectUri = "http://localhost:56067/signin-google"; // is not used but required
+                        // is not used but required
+                        string redirectUri;
+                        if (Enviroment.IsDevelopment())
+                        {
+                            redirectUri = "http://localhost:56067/signin-google";
+                        }
+                        else
+                        {
+                            if(context.Request.Scheme == "https")
+                            {
+                                redirectUri = $"{this.Configuration["Settings:UrlSchemaHttps"]}signin-google";
+                            }
+                            else
+                            {
+                                redirectUri = $"{this.Configuration["Settings:UrlSchemaHttp"]}signin-google";
+                            }
+                        }
                         var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
                         {
                             ClientSecrets = new Google.Apis.Auth.OAuth2.ClientSecrets
@@ -129,7 +152,8 @@ namespace FTM.WebApi
                     }
                 };
             });
-            #endregion
+
+            #endregion Middleware authentication
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -141,14 +165,37 @@ namespace FTM.WebApi
                 // Enable middleware to serve generated Swagger as a JSON endpoint.
                 app.UseSwagger();
 
-                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
+                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
                 // specifying the Swagger JSON endpoint.
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
                 });
             }
-
+            else
+            {
+                // Config for reverse proxy use subpath MathAppApi
+                app.UsePathBase("/ftm");
+                //app.UseHsts();
+                app.UseExceptionHandler(appBuilder =>
+                {
+                    appBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync("Lỗi rồi nhé, chắc là đăng nhập sai thôi!!!", encoding: Encoding.Unicode);
+                    });
+                });
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
+                });
+            }
+            app.UseCors(x => x
+              .AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials());
             app.UseAuthentication();
             app.UseMvc();
         }

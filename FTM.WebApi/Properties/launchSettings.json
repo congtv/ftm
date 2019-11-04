@@ -20,7 +20,7 @@
     "FTM.WebApi": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/authenticate",
+      "launchUrl": "",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

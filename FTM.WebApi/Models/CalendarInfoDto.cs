@@ -1,10 +1,4 @@
-﻿using FTM.WebApi.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace FTM.WebApi.Models
+﻿namespace FTM.WebApi.Models
 {
     public class CalendarInfoDto
     {

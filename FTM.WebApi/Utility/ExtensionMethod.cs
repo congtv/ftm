@@ -14,8 +14,8 @@ namespace FTM.WebApi.Utility
 
         public static bool IsDateGreaterThan(this DateTime source, DateTime compare)
         {
-            return source.Year > compare.Year 
-                || (source.Year == compare.Year 
+            return source.Year > compare.Year
+                || (source.Year == compare.Year
                     && (source.Month > compare.Month || source.Day > compare.Day));
         }
 
@@ -106,7 +106,6 @@ namespace FTM.WebApi.Utility
                 HtmlLink = @event.HtmlLink
             };
         }
-
 
         public static CalendarInfoDto CreateResult(this FtmCalendarInfo calendar)
         {

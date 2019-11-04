@@ -17,6 +17,7 @@ namespace FTM.WebApi.Models
         {
             this.context = context;
         }
+
         public Task ClearAsync()
         {
             context.FtmTokenResponses.RemoveRange(context.FtmTokenResponses.ToArray());
@@ -31,8 +32,16 @@ namespace FTM.WebApi.Models
                 throw new ArgumentException("Key MUST have a value");
             }
 
-            context.FtmTokenResponses.Remove(context.FtmTokenResponses.First(x => x.UserId == key));
-            context.SaveChanges();
+            var delete = context.FtmTokenResponses.FirstOrDefault(x => x.UserId == key);
+            if(delete != null)
+            {
+                context.FtmTokenResponses.Remove(delete);
+                context.SaveChanges();
+            }
+            else
+            {
+                ClearAsync();
+            }
             return CompletedTask;
         }
 
@@ -47,7 +56,7 @@ namespace FTM.WebApi.Models
             try
             {
                 var result = context.FtmTokenResponses.FirstOrDefault(x => x.UserId == key);
-                if(result != null)
+                if (result != null)
                 {
                     var tokenResponse = NewtonsoftJsonSerializer.Instance.Serialize(result.GetTokenResponseInfo());
                     tcs.SetResult(NewtonsoftJsonSerializer.Instance.Deserialize<T>(tokenResponse));

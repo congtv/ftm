@@ -22,7 +22,7 @@ namespace FTM.WebApi.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult GetRooms()
+        public IActionResult GetCalendars()
         {
             try
             {
@@ -40,7 +40,7 @@ namespace FTM.WebApi.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> UpdateRoomsUsable([FromBody] IEnumerable<CalendarInfoDto> calendarInfoDto)
+        public async Task<IActionResult> UpdateCalendarsUsable([FromBody] IEnumerable<CalendarInfoDto> calendarInfoDto)
         {
             using (var transaction = context.Database.BeginTransaction())
             {

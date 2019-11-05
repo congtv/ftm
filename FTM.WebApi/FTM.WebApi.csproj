@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <None Remove=".gitignore" />
+    <None Remove="FtmDatabase.db3" />
     <None Remove="Models\ClientInfo.cs~RFc70035c.TMP" />
   </ItemGroup>
 
@@ -21,6 +22,12 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="FtmDatabase.db3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

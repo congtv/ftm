@@ -3,6 +3,7 @@ using FTM.WebApi.Models;
 using FTM.WebApi.Utility;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -32,7 +33,8 @@ namespace FTM.WebApi.Controllers
             this.baseLink = this.configuration["Settings:BaseLink"];
         }
 
-        [HttpGet("")]
+        [EnableCors]
+        [HttpPost]
         public async Task<IActionResult> Get([FromBody] GetEventRequestModel requestModel)
         {
             if (requestModel.StartDateTime < requestModel.EndDateTime)
@@ -264,6 +266,7 @@ namespace FTM.WebApi.Controllers
             }
         }
 
+        [EnableCors]
         [HttpGet("violate")]
         public async Task<IActionResult> GetViolateEvents()
         {

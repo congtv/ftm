@@ -174,8 +174,8 @@ namespace FTM.WebApi
             }
             else
             {
-                // Config for reverse proxy use subpath MathAppApi
-                app.UsePathBase("/ftm");
+                //// Config for reverse proxy use subpath MathAppApi
+                //app.UsePathBase("/ftm");
                 //app.UseHsts();
                 app.UseExceptionHandler(appBuilder =>
                 {

@@ -2,6 +2,7 @@
 using FTM.WebApi.Models;
 using FTM.WebApi.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +21,8 @@ namespace FTM.WebApi.Controllers
             this.context = context;
         }
 
+        [EnableCors]
         [HttpGet]
-        [Authorize]
         public IActionResult GetCalendars()
         {
             try
@@ -38,8 +39,8 @@ namespace FTM.WebApi.Controllers
             }
         }
 
+        [EnableCors]
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> UpdateCalendarsUsable([FromBody] IEnumerable<CalendarInfoDto> calendarInfoDto)
         {
             using (var transaction = context.Database.BeginTransaction())

@@ -3,6 +3,7 @@ using FTM.WebApi.Entities;
 using FTM.WebApi.Models;
 using Google.Apis.Auth.OAuth2.Flows;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Diagnostics;
@@ -72,12 +74,23 @@ namespace FTM.WebApi
 
             #region Middleware authentication
 
-            services.AddAuthentication(v =>
+            var key = Encoding.ASCII.GetBytes(Configuration["Settings:Jwt:Key"]);
+            services.AddAuthentication(x =>
             {
-                v.DefaultAuthenticateScheme = "Cookie";
-                v.DefaultChallengeScheme = "Google";
-                v.DefaultSignInScheme = "Cookie";
-                v.DefaultSignOutScheme = "Cookie";
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer("Bearer", x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
             })
             .AddCookie("Cookie", op =>
             {

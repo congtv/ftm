@@ -75,10 +75,19 @@ namespace FTM.WebApi
             #region Middleware authentication
 
             var key = Encoding.ASCII.GetBytes(Configuration["Settings:Jwt:Key"]);
-            services.AddAuthentication(x =>
+            services.AddAuthentication(v =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                v.DefaultAuthenticateScheme = "Cookie";
+                v.DefaultChallengeScheme = "Google";
+                v.DefaultSignInScheme = "Cookie";
+                v.DefaultSignOutScheme = "Cookie";
+            })
+            .AddCookie("Cookie", op =>
+            {
+                op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30); ;
+                op.SlidingExpiration = true;
+                op.LogoutPath = "/api/logout";
+                op.LoginPath = "/api/login";
             })
             .AddJwtBearer("Bearer", x =>
             {
@@ -91,11 +100,6 @@ namespace FTM.WebApi
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-            })
-            .AddCookie("Cookie", op =>
-            {
-                op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30); ;
-                op.SlidingExpiration = true;
             })
             .AddGoogleOpenIdConnect("Google", options =>
             {
@@ -210,7 +214,15 @@ namespace FTM.WebApi
               .AllowAnyHeader()
               .AllowCredentials());
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseStaticFiles();
+            app.UseCookiePolicy();
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Login}/{action=Index}/{id?}");
+            });
         }
     }
 }

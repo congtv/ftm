@@ -31,7 +31,7 @@ namespace FTM.WebApi.Controllers
         }
 
         [HttpGet]
-        [Authorize()]
+        [Authorize(AuthenticationSchemes = "Google")]
         public async Task<IActionResult> Authenticate()
         {
             using (var transaction = context.Database.BeginTransaction())

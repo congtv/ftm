@@ -5,10 +5,6 @@ VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FTM.WebApi", "FTM.WebApi\FTM.WebApi.csproj", "{0C35956E-8473-4DAD-9966-5DB6D577F077}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTM.Android.Android", "FTM.Android\FTM.Android.Android\FTM.Android.Android.csproj", "{D4747B15-E990-4C83-87D6-15507CB9F845}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTM.Android", "FTM.Android\FTM.Android\FTM.Android.csproj", "{DAD25078-C9E8-4CAD-BCED-9B599603C31C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,16 +15,6 @@ Global
 		{0C35956E-8473-4DAD-9966-5DB6D577F077}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C35956E-8473-4DAD-9966-5DB6D577F077}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C35956E-8473-4DAD-9966-5DB6D577F077}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D4747B15-E990-4C83-87D6-15507CB9F845}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D4747B15-E990-4C83-87D6-15507CB9F845}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D4747B15-E990-4C83-87D6-15507CB9F845}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{D4747B15-E990-4C83-87D6-15507CB9F845}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D4747B15-E990-4C83-87D6-15507CB9F845}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D4747B15-E990-4C83-87D6-15507CB9F845}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{DAD25078-C9E8-4CAD-BCED-9B599603C31C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DAD25078-C9E8-4CAD-BCED-9B599603C31C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DAD25078-C9E8-4CAD-BCED-9B599603C31C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DAD25078-C9E8-4CAD-BCED-9B599603C31C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

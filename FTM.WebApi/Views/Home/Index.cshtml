@@ -1,8 +1,161 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@section Menu
+{
+    <div class="menu">
+        <ul class="list">
+            <li class="active">
+                <a href="index.html">
+                    <i class="material-icons">home</i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="pages/helper-classes.html">
+                    <i class="material-icons">layers</i>
+                    <span>Cài đặt phòng cho phép book</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript:void(0);">
+                    <i class="material-icons">widgets</i>
+                    <span>Danh sách book trùng</span>
+                </a>
+            </li>
+            <li>
+                <a href="index.html">
+                    <i class="material-icons">home</i>
+                    <span>Đăng nhập lại tài khoản Google</span>
+                </a>
+            </li>
+            <li>
+                <a href="index.html">
+                    <i class="material-icons">input</i>
+                    <span>Signout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+}
+@*<div class="block-header">
+    <h2>HOME</h2>
+</div>*@
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Search setting -->
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+            <div data-toggle="collapse" data-target="#searchingInfo" class="header">
+                <h2>
+                    THÔNG TIN TÌM KIẾM
+                </h2>
+            </div>
+            <div id="searchingInfo" class="body">
+                <div class="row clearfix">
+                    <div class="col-xs-12">
+                        <h2 class="card-inside-title">Thời gian trong khoảng</h2>
+                        <div class="input-daterange input-group" id="bs_datepicker_range_container">
+                            <div class="form-line">
+                                <input type="text" id="startDate" class="form-control" placeholder="Ngày bắt đầu...">
+                            </div>
+                            <span class="input-group-addon">tới</span>
+                            <div class="form-line">
+                                <input type="text" id="endDate" class="form-control" placeholder="Ngày kết thúc...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row clearfix">
+                    <div class="col-sm-6 col-xs-12">
+                        <select id="time" class="form-control show-tick">
+                            <option value="0">-- Chọn số giờ book --</option>
+                            <option value="0.5">Nửa giờ</option>
+                            <option value="1">1 giờ</option>
+                            <option value="1.5">1 giờ 30 phút</option>
+                            <option value="2">2 giờ</option>
+                            <option value="2.5">2 giờ  30 phút</option>
+                            <option value="3">3 giờ</option>
+                            <option value="3.5">3 giờ  30 phút</option>
+                            <option value="4">4 giờ</option>
+                            <option value="4.5">4 giờ  30 phút</option>
+                            <option value="5">5 giờ</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <button id="btnSearch" type="button" class="btn bg-purple waves-effect">
+                            <i class="material-icons">search</i>
+                            <span>Tìm kiếm</span>
+                        </button>
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <button id="btnSetting" type="button" data-toggle="modal" data-target="#defaultModal" class="btn bg-deep-purple waves-effect">
+                            <i class="material-icons">settings</i>
+                            <span>Cài đặt phòng tìm kiếm</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+<!-- #END# Search setting -->
+<!-- Data -->
+<div class="row clearfix">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div data-toggle="collapse" data-target="#listFreeTime" class="header">
+                <h2>DANH SÁCH THỜI GIAN TRỐNG</h2>
+            </div>
+            <div id="listFreeTime" class="body">
+                <div class="table-responsive">
+                    <table id="freeTimeTable" class="table table-hover dashboard-task-infos">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tên phòng</th>
+                                <th>Ngày</th>
+                                <th>Thời gian</th>
+                                <th id="goto" width="15%">Đường dẫn lịch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #END#  Data -->
+
+<!-- Model Default Size -->
+<div class="modal fade" id="defaultModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="defaultModalLabel">CÀI ĐẶT PHÒNG SẼ BOOK</h2>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="freeTimeTable" class="table table-hover dashboard-task-infos">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tên phòng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link waves-effect">LƯU CÀI ĐẶT</button>
+                <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">ĐÓNG</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #END# Model Default Size -->

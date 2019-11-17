@@ -86,8 +86,8 @@ namespace FTM.WebApi
             {
                 op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30); ;
                 op.SlidingExpiration = true;
-                op.LogoutPath = "/api/logout";
-                op.LoginPath = "/api/login";
+                op.LogoutPath = "/account/logout";
+                op.LoginPath = "/account/login";
             })
             .AddJwtBearer("Bearer", x =>
             {
@@ -221,7 +221,7 @@ namespace FTM.WebApi
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Login}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

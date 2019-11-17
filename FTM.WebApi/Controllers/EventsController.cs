@@ -33,7 +33,6 @@ namespace FTM.WebApi.Controllers
             this.baseLink = this.configuration["Settings:BaseLink"];
         }
 
-        [EnableCors]
         [HttpPost]
         public async Task<IActionResult> Get([FromBody] GetEventRequestModel requestModel)
         {
@@ -266,7 +265,6 @@ namespace FTM.WebApi.Controllers
             }
         }
 
-        [EnableCors]
         [HttpGet("violate")]
         public async Task<IActionResult> GetViolateEvents()
         {

@@ -7,6 +7,7 @@ namespace FTM.WebApi.Models
     {
         public DateTime? StartDateTime { get; set; }
         public DateTime? EndDateTime { get; set; }
+        public double Time { get; set; }
         public IEnumerable<string> CalendarIds { get; set; }
     }
 }

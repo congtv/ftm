@@ -1,4 +1,5 @@
 ﻿using FTM.WebApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -9,15 +10,19 @@ using System.Threading.Tasks;
 
 namespace FTM.WebApi.Controllers
 {
+    [AutoValidateAntiforgeryToken]
+    [Authorize(AuthenticationSchemes = "Cookie")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly CalendarsController calendarsController;
+        private readonly EventsController eventsController;
 
-        public HomeController(ILogger<HomeController> logger, CalendarsController calendarsController)
+        public HomeController(ILogger<HomeController> logger, CalendarsController calendarsController, EventsController eventsController)
         {
             _logger = logger;
             this.calendarsController = calendarsController;
+            this.eventsController = eventsController;
         }
 
         public IActionResult Index()
@@ -36,15 +41,19 @@ namespace FTM.WebApi.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult Setting([FromForm]IEnumerable<CalendarInfoDto> calendarInfoDtos)
+        [HttpGet]
+        public async Task<IActionResult> Duplicate()
         {
-            return View();
-        }
-
-        public IActionResult Duplicate()
-        {
-            return View();
+            var result = await eventsController.GetDuplicateEvents();
+            if (result is OkObjectResult ok)
+            {
+                return View(ok.Value);
+            }
+            else
+            {
+                ViewBag["Message"] = "Không tìm thấy bất cứ lịch trùng nào!!!";
+                return View();
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

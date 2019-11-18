@@ -1,7 +1,7 @@
-﻿@model IEnumerable<FTM.WebApi.Models.CalendarInfoDto>
+﻿@model IEnumerable<FTM.WebApi.Models.EventErrorResult>
 
 @{
-    ViewData["Title"] = "Setting";
+    ViewData["Title"] = "Duplicate";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -15,13 +15,13 @@
                     <span>HOME</span>
                 </a>
             </li>
-            <li class="active">
+            <li>
                 <a asp-action="Setting">
                     <i class="material-icons">layers</i>
                     <span>CÀI ĐẶT PHÒNG CHO PHÉP BOOK</span>
                 </a>
             </li>
-            <li>
+            <li class="active">
                 <a asp-action="Duplicate">
                     <i class="material-icons">widgets</i>
                     <span>DANH SÁCH BOOK TRÙNG</span>
@@ -46,43 +46,41 @@
 <div class="row clearfix">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="card">
-            <div data-toggle="collapse" data-target="#listRoom" class="header">
-                <h2>CÀI ĐẶT PHÒNG BOOK CHO TẤT CẢ</h2>
+            <div data-toggle="collapse" data-target="#listDuplicate" class="header">
+                <h2>DANH SÁCH BOOK TRÙNG</h2>
             </div>
-            <div id="listRoom" class="body">
+            <div id="listDuplicate" class="body">
                 <div class="table-responsive">
                     <table id="settingRoomTable" class="table table-hover dashboard-task-infos">
                         <thead>
                             <tr>
-                                <th width="15%">#</th>
-                                <th>TÊN PHÒNG</th>
-                                <th>MÔ TẢ</th>
+                                <th>Tiêu đề</th>
+                                <th>Người tạo</th>
+                                <th>Mô tả</th>
+                                <th>Link</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" id="chkChon+@item.RoomId" data-room-id="@item.RoomId" class="chk-col-light-blue" checked="@item.IsUseable" />
-                                        <label for="chkChon+@item.RoomId">CHỌN</label>
-                                    </td>
-                                    <td>
-                                        @item.RoomName
-                                    </td>
-                                    <td>
-                                        @item.Description
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>
+                                    @item.Summary
+                                </td>
+                                <td>
+                                    @item.Creator
+                                </td>
+                                <td>
+                                    @item.Description
+                                </td>
+                                <td>
+                                    <a type="button" href="@item.HtmlLink" target="_blank" class="btn bg-teal waves-effect"><i class="material-icons">link</i><span>Đi đến lịch</span></a>
+                                </td>
+                            </tr>
                             }
                         </tbody>
                     </table>
                 </div>
-
-                <button id="btnSaveSettingRoomTable" type="button" class="btn bg-orange waves-effect">
-                    <i class="material-icons">save</i>
-                    <span>LƯU CÀI ĐẶT</span>
-                </button>
             </div>
         </div>
     </div>

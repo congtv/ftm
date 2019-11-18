@@ -7738,9 +7738,9 @@ fieldset[disabled] .form-control {
       .right-sidebar .nav-tabs li > a {
         margin-right: 0; }
       .right-sidebar .nav-tabs li:first-child {
-        width: 45%; }
+        width: 100%; }
       .right-sidebar .nav-tabs li:last-child {
-        width: 55%; }
+        width: 100%; }
 
 /* Bootstrap Notify ============================ */
 .bootstrap-notify-container {

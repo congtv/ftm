@@ -321,7 +321,7 @@
             <h1 class="title">Login</h1>
             <form method="post" asp-controller="Account" asp-action="Login" asp-route-returnurl="@Model.ReturnUrl">
                 <div class="input-container">
-                    <input type="#{type}" id="#{label}" asp-for="Username" required="required" />
+                    <input type="#{type}" id="#{label}" asp-for="Username" required="required" autofocus value="@Model.Username" />
                     <label for="#{label}" asp-for="Username">Email</label>
                     <div class="bar"></div>
                 </div>
@@ -340,6 +340,6 @@
             </form>
         </div>
     </div>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src='~/lib/jquery/dist/jquery.min.js'></script>
 </body>
 </html>

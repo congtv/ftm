@@ -16,7 +16,11 @@ window.onload = function () {
             localStorage.setItem('listCalendar', JSON.stringify(listCalendar));
             localStorage.setItem('setCalendarTime', now);
         }).fail(function () {
-            // TODO : show message
+            swal({
+                title: "THÔNG BÁO",
+                type: "warning",
+                text: "Không tìm thấy bất kì danh sách phòng nào!!!"
+            });
         });
     }
     //renew list calendar
@@ -35,20 +39,31 @@ GetCalendars = function () {
 };
 
 $('#btnSearch').on('click', function () {
-    $('.page-loader-wrapper').fadeIn();
-    var startDate = $('#startDate').val();
-    var endDate = $('#endDate').val();
-    var time = $('#time').val();
-
-    if (time === null || time === "")
-        time = 1;
-
     var calendarIds = JSON.parse(localStorage.getItem('listCalendar')).filter(item => {
         if (item.isUseable) {
-            console.log()
             return item.roomId;
         }
     }).map(item => item.roomId);
+
+    if (calendarIds.length <= 0) {
+        swal({
+            title: "THÔNG BÁO",
+            type: "warning",
+            text: "Bạn đang không chọn bất kì danh sách nào!!!"
+        });
+        return;
+    }
+
+    $('.page-loader-wrapper').fadeIn();
+
+    var startDate = new Date($('#startDate').val());
+    if (startDate === undefined) startDate = new Date();
+
+    var endDate = new Date($('#endDate').val());
+    if (endDate === undefined) endDate = new Date();
+
+    var time = $('#time').val();
+    if (time === null || time === "") time = 1;
 
     var data = {
         StartDateTime: startDate,
@@ -68,23 +83,32 @@ $('#btnSearch').on('click', function () {
     .done(function (data) {
         var bodyTable = $("#freeTimeTable").find('tbody');
         bodyTable.empty();
+
         for (var i = 0; i < data.length; i++) {
             var btnTemplate = '<a type="button" href="' + data[i].htmlLink + '" target="_blank" class="btn bg-teal waves-effect"><i class="material-icons">link</i><span>Đi đến lịch</span></a> ';
             var index = parseInt(i) + 1;
-            var template = 
+            var template =
                 '<tr>' +
                 '<td>' + index + '</td>' +
                 '<td>' + data[i].calendarName + '</td>' +
                 '<td>' + data[i].startTime.substring(0, 10) + '</td>' +
-                    '<td>' + window.GetHourFromDateString(data[i].startTime) + '  -  ' + window.GetHourFromDateString(data[i].endTime) + '</td>' +
+                '<td>' + window.GetHourFromDateString(data[i].startTime) + '  -  ' + window.GetHourFromDateString(data[i].endTime) + '</td>' +
                 '<td>' + btnTemplate + '</td>' +
                 '</tr>';
             bodyTable.append(template);
         }
+
+        swal('Đã tìm thấy ' + data.length + ' lịch trống!!!');
+
         $('.page-loader-wrapper').fadeOut();
     })
     .fail(function (textStatus, errorThrown) {
         $('.page-loader-wrapper').fadeOut();
+        swal({
+            title: "THÔNG BÁO",
+            type: "warning",
+            text: "Đã có lỗi xảy ra. Vui lòng thử lại!!!"
+        });
     });
 });
 
@@ -96,7 +120,7 @@ GetHourFromDateString = function (dateStr) {
         minutes = '0' + minutes;
 
     return hour + ':' + minutes;
-}
+};
 
 $("#defaultModal").on('show.bs.modal', function () {
     var body = $('#calendarSettingTable').find('tbody');
@@ -104,7 +128,7 @@ $("#defaultModal").on('show.bs.modal', function () {
     var index = 0;
     ListCalendar.forEach(item => {
         var isChecked = item.isUseable ? 'checked' : '';
-        var template = 
+        var template =
             '<tr>' +
             '<td>' + '<input type="checkbox" id="chkChon' + index + '" data-room-id="' + item.roomId + '" class="chk-col-light-blue" ' + isChecked + ' />  <label for="chkChon' + index + '">CHỌN</label>' + '</td>' +
             '<td>' + item.roomName + '</td>' +
@@ -114,8 +138,6 @@ $("#defaultModal").on('show.bs.modal', function () {
     });
 });
 
-
-
 $('#btnSaveCalendarSettings').on('click', function () {
     var inputs = $('#calendarSettingTable').find('tbody').find(':input');
     inputs.toArray().forEach(input => {
@@ -123,10 +145,9 @@ $('#btnSaveCalendarSettings').on('click', function () {
         var newValue = ListCalendar.find(item => item.roomId === id);
         newValue.isUseable = input.checked;
     });
-
+    swal('Lưu thành công!!!');
     localStorage.setItem('listCalendar', JSON.stringify(ListCalendar));
 });
-
 
 $('#btnSaveSettingRoomTable').on('click', function () {
     var inputs = $('#settingRoomTable').find('tbody').find(':input');
@@ -145,16 +166,25 @@ $('#btnSaveSettingRoomTable').on('click', function () {
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
         data: JSON.stringify(newSetting)
-    }).done(function (data) {
-        var newListCalendarLocal = ListCalendar.filter(item => {
-            var setting = newSetting.find(set => set.RoomId == item.roomId);
-            if (setting.IsUseable)
-                return item;
-        });
-        localStorage.setItem('listCalendar', JSON.stringify(newListCalendarLocal));
-        var now = new Date().getTime()
-        localStorage.setItem('setCalendarTime', now);
-    }).fail(function () {
-        // TODO : show message
+    })
+        .done(function (data) {
+            var newListCalendarLocal = ListCalendar.filter(item => {
+                var setting = newSetting.find(set => set.RoomId === item.roomId);
+                if (setting.IsUseable)
+                    return item;
+            });
+
+            localStorage.setItem('listCalendar', JSON.stringify(newListCalendarLocal));
+            var now = new Date().getTime();
+            localStorage.setItem('setCalendarTime', now);
+
+            swal('Lưu thành công. Đã cập nhật cho toàn hệ thống!!!');
+        })
+        .fail(function () {
+            swal({
+                title: "THÔNG BÁO",
+                type: "warning",
+                text: "Đã có lỗi xảy ra. Vui lòng thử lại!!!"
+            });
         });
 });

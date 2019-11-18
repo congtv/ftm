@@ -28,13 +28,6 @@ namespace FTM.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> Login(string returnUrl = "")
         {
-            //if (HttpContext.User.Claims.Any())
-            //{
-            //    if (!string.IsNullOrEmpty(returnUrl))
-            //        return RedirectToRoute(returnUrl);
-            //    else
-            //        return RedirectToRoute("default");
-            //}
             var model = new LoginViewModel { ReturnUrl = returnUrl };
             return View(model);
         }
@@ -45,6 +38,7 @@ namespace FTM.WebApi.Controllers
             if (!IsAuthenticated(model.Username, model.Password))
             {
                 model.IsLoginFail = true;
+                model.Username = null;
                 return View(model);
             }
                
@@ -68,7 +62,7 @@ namespace FTM.WebApi.Controllers
                         //IsPersistent = true, // for 'remember me' feature
                         ExpiresUtc = DateTime.UtcNow.AddMinutes(1)
                     });
-            
+
             return Redirect(model.ReturnUrl ?? "/");
         }
 

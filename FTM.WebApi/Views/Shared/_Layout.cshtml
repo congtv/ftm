@@ -34,8 +34,8 @@
     <!-- Animation Css -->
     <link href="~/plugins/animate-css/animate.css" rel="stylesheet" />
 
-    <!-- Morris Chart Css-->
-    <link href="~/plugins/morrisjs/morris.css" rel="stylesheet" />
+    <!-- Sweetalert Css -->
+    <link href="../../plugins/sweetalert/sweetalert.css" rel="stylesheet" />
 
     <!-- Custom Css -->
     <link href="~/css/style.css" rel="stylesheet">
@@ -114,10 +114,10 @@
             <!-- Footer -->
             <div class="legal">
                 <div class="copyright">
-                    &copy; 2016 - 2017 <a href="javascript:void(0);">AdminBSB - Material Design</a>.
+                    &copy; <a href="javascript:void(0);">Made by Sương Gió Hà Nội</a>
                 </div>
                 <div class="version">
-                    <b>Version: </b> 1.0.5
+                    <b>Version: </b> x.x.x
                 </div>
             </div>
             <!-- #Footer -->
@@ -125,9 +125,8 @@
         <!-- #END# Left Sidebar -->
         <!-- Right Sidebar -->
         <aside id="rightsidebar" class="right-sidebar">
-            <ul class="nav nav-tabs tab-nav-right" role="tablist">
-                <li role="presentation" class="active"><a href="#skins" data-toggle="tab">SKINS</a></li>
-                <li role="presentation"><a href="#settings" data-toggle="tab">SETTINGS</a></li>
+            <ul class="nav nav-tabs tab-nav-right">
+                <li class="active"><a href="#skins">SKINS</a></li>
             </ul>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade in active in active" id="skins">
@@ -214,55 +213,6 @@
                         </li>
                     </ul>
                 </div>
-                <div role="tabpanel" class="tab-pane fade" id="settings">
-                    <div class="demo-settings">
-                        <p>GENERAL SETTINGS</p>
-                        <ul class="setting-list">
-                            <li>
-                                <span>Report Panel Usage</span>
-                                <div class="switch">
-                                    <label><input type="checkbox" checked><span class="lever"></span></label>
-                                </div>
-                            </li>
-                            <li>
-                                <span>Email Redirect</span>
-                                <div class="switch">
-                                    <label><input type="checkbox"><span class="lever"></span></label>
-                                </div>
-                            </li>
-                        </ul>
-                        <p>SYSTEM SETTINGS</p>
-                        <ul class="setting-list">
-                            <li>
-                                <span>Notifications</span>
-                                <div class="switch">
-                                    <label><input type="checkbox" checked><span class="lever"></span></label>
-                                </div>
-                            </li>
-                            <li>
-                                <span>Auto Updates</span>
-                                <div class="switch">
-                                    <label><input type="checkbox" checked><span class="lever"></span></label>
-                                </div>
-                            </li>
-                        </ul>
-                        <p>ACCOUNT SETTINGS</p>
-                        <ul class="setting-list">
-                            <li>
-                                <span>Offline</span>
-                                <div class="switch">
-                                    <label><input type="checkbox"><span class="lever"></span></label>
-                                </div>
-                            </li>
-                            <li>
-                                <span>Location Permission</span>
-                                <div class="switch">
-                                    <label><input type="checkbox" checked><span class="lever"></span></label>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </aside>
         <!-- #END# Right Sidebar -->
@@ -313,7 +263,11 @@
     <script src="~/js/pages/index.js"></script>
 
     <script src="~/js/pages/forms/basic-form-elements.js"></script>
-
+    <!-- Bootstrap Notify Plugin Js -->
+    <script src="~/plugins/bootstrap-notify/bootstrap-notify.js"></script>
+    <script src="~/js/pages/ui/dialogs.js"></script>
+    <!-- SweetAlert Plugin Js -->
+    <script src="~/plugins/sweetalert/sweetalert-dev.js"></script>
     <!-- Demo Js -->
     <script src="~/js/demo.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

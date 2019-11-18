@@ -36,6 +36,8 @@ $(function () {
     $('#bs_datepicker_range_container').datepicker({
         autoclose: true,
         container: '#bs_datepicker_range_container',
-        format: 'yyyy/mm/dd'
+        format: 'yyyy/mm/dd',
+        todayHighlight: true,
+        todayBtn: true
     });
 });

@@ -77,10 +77,9 @@ namespace FTM.WebApi
             var key = Encoding.ASCII.GetBytes(Configuration["Settings:Jwt:Key"]);
             services.AddAuthentication(v =>
             {
-                v.DefaultAuthenticateScheme = "Cookie";
-                v.DefaultChallengeScheme = "Google";
+                v.DefaultScheme = "Cookie";
+                //v.DefaultAuthenticateScheme = "Cookie";
                 v.DefaultSignInScheme = "Cookie";
-                v.DefaultSignOutScheme = "Cookie";
             })
             .AddCookie("Cookie", op =>
             {
@@ -88,18 +87,6 @@ namespace FTM.WebApi
                 op.SlidingExpiration = true;
                 op.LogoutPath = "/account/logout";
                 op.LoginPath = "/account/login";
-            })
-            .AddJwtBearer("Bearer", x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
             })
             .AddGoogleOpenIdConnect("Google", options =>
             {
@@ -117,7 +104,11 @@ namespace FTM.WebApi
                     Debug.WriteLine("***RedirectToIdentityProvider");
                     context.ProtocolMessage.Prompt = "consent";
                     context.ProtocolMessage.SetParameter("access_type", "offline");
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRemoteFailure = (context) =>
+                {
+                    return Task.CompletedTask;
                 };
                 options.Events.OnAuthorizationCodeReceived = async (context) =>
                 {
@@ -179,15 +170,15 @@ namespace FTM.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                // Enable middleware to serve generated Swagger as a JSON endpoint.
-                app.UseSwagger();
+                //// Enable middleware to serve generated Swagger as a JSON endpoint.
+                //app.UseSwagger();
 
-                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-                // specifying the Swagger JSON endpoint.
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
-                });
+                //// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+                //// specifying the Swagger JSON endpoint.
+                //app.UseSwaggerUI(c =>
+                //{
+                //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
+                //});
             }
             else
             {
@@ -213,8 +204,9 @@ namespace FTM.WebApi
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials());
+
             app.UseAuthentication();
-            app.UseStaticFiles();
+            //app.UseStaticFiles();
             app.UseCookiePolicy();
 
             app.UseMvc(routes =>

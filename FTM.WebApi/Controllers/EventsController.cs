@@ -273,8 +273,8 @@ namespace FTM.WebApi.Controllers
             }
         }
 
-        [HttpGet("violate")]
-        public async Task<IActionResult> GetViolateEvents()
+        [HttpGet("duplicate")]
+        public async Task<IActionResult> GetDuplicateEvents()
         {
             try
             {

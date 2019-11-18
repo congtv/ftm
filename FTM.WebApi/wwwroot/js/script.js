@@ -1,39 +1,31 @@
 ﻿var RootUrl = '';
-var ListCalendarId = [];
+var ListCalendar = [];
 window.onload = function () {
-    RootUrl = window.location.href;
-    debugger;
+    RootUrl = window.location.origin;
     var listCalendar = JSON.parse(localStorage.getItem('listCalendar'));
     var calendarTimeOut = 7;    //7 day
     var now = new this.Date().getTime();
     var setCalendarTime = localStorage.getItem('setCalendarTime');
     if (listCalendar === 'null' || now - setCalendarTime > calendarTimeOut * 7 * 24 * 60 * 60 * 1000) {
         $.ajax({
-            url: RootUrl + 'api/calendars',
+            url: RootUrl + '/api/calendars',
             type: 'GET',
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
             listCalendar = data;
-            listCalendar.forEach(item => {
-                ListCalendarId.push(item.roomId);
-            });
-
             localStorage.setItem('listCalendar', JSON.stringify(listCalendar));
             localStorage.setItem('setCalendarTime', now);
         }).fail(function () {
-            //Message
+            // TODO : show message
         });
     }
-    else {
-        listCalendar.forEach(item => {
-            ListCalendarId.push(item.roomId);
-        });
-    }
+    //renew list calendar
+    ListCalendar = JSON.parse(localStorage.getItem('listCalendar'));
 };
 
 GetCalendars = function () {
     $.ajax({
-        url: RootUrl + 'api/calendars',
+        url: RootUrl + '/api/calendars',
         type: 'GET',
         contentType: 'application/json; charset=utf-8'
     }).done(function (data) {
@@ -43,7 +35,7 @@ GetCalendars = function () {
 };
 
 $('#btnSearch').on('click', function () {
-    debugger;
+    $('.page-loader-wrapper').fadeIn();
     var startDate = $('#startDate').val();
     var endDate = $('#endDate').val();
     var time = $('#time').val();
@@ -51,18 +43,23 @@ $('#btnSearch').on('click', function () {
     if (time === null || time === "")
         time = 1;
 
+    var calendarIds = JSON.parse(localStorage.getItem('listCalendar')).filter(item => {
+        if (item.isUseable) {
+            console.log()
+            return item.roomId;
+        }
+    }).map(item => item.roomId);
+
     var data = {
         StartDateTime: startDate,
         EndDateTime: endDate,
         Time: time,
         IsAdmin: true,
-        CalendarIds: [
-            "exadata.info_e5o5kj5jmng7q9au4ga2fsp3a4@group.calendar.google.com"]
+        CalendarIds: calendarIds
     };
-    $('.page-loader-wrapper').fadeIn();
 
     $.ajax({
-        url: RootUrl + 'api/events',
+        url: RootUrl + '/api/events',
         type: 'POST',
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
@@ -100,3 +97,64 @@ GetHourFromDateString = function (dateStr) {
 
     return hour + ':' + minutes;
 }
+
+$("#defaultModal").on('show.bs.modal', function () {
+    var body = $('#calendarSettingTable').find('tbody');
+    body.empty();
+    var index = 0;
+    ListCalendar.forEach(item => {
+        var isChecked = item.isUseable ? 'checked' : '';
+        var template = 
+            '<tr>' +
+            '<td>' + '<input type="checkbox" id="chkChon' + index + '" data-room-id="' + item.roomId + '" class="chk-col-light-blue" ' + isChecked + ' />  <label for="chkChon' + index + '">CHỌN</label>' + '</td>' +
+            '<td>' + item.roomName + '</td>' +
+            '</tr>';
+        body.append(template);
+        index++;
+    });
+});
+
+
+
+$('#btnSaveCalendarSettings').on('click', function () {
+    var inputs = $('#calendarSettingTable').find('tbody').find(':input');
+    inputs.toArray().forEach(input => {
+        var id = input.dataset.roomId;
+        var newValue = ListCalendar.find(item => item.roomId === id);
+        newValue.isUseable = input.checked;
+    });
+
+    localStorage.setItem('listCalendar', JSON.stringify(ListCalendar));
+});
+
+
+$('#btnSaveSettingRoomTable').on('click', function () {
+    var inputs = $('#settingRoomTable').find('tbody').find(':input');
+    var newSetting = inputs.toArray().map(input => {
+        var obj = {};
+        obj.RoomId = input.dataset.roomId;
+        obj.RoomName = '';
+        obj.Description = '';
+        obj.IsUseable = input.checked;
+        return obj;
+    });
+
+    $.ajax({
+        url: RootUrl + '/api/calendars',
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify(newSetting)
+    }).done(function (data) {
+        var newListCalendarLocal = ListCalendar.filter(item => {
+            var setting = newSetting.find(set => set.RoomId == item.roomId);
+            if (setting.IsUseable)
+                return item;
+        });
+        localStorage.setItem('listCalendar', JSON.stringify(newListCalendarLocal));
+        var now = new Date().getTime()
+        localStorage.setItem('setCalendarTime', now);
+    }).fail(function () {
+        // TODO : show message
+        });
+});

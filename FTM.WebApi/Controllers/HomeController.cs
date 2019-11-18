@@ -12,10 +12,12 @@ namespace FTM.WebApi.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly CalendarsController calendarsController;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, CalendarsController calendarsController)
         {
             _logger = logger;
+            this.calendarsController = calendarsController;
         }
 
         public IActionResult Index()
@@ -23,7 +25,24 @@ namespace FTM.WebApi.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        [HttpGet]
+        public IActionResult Setting()
+        {
+            var result = calendarsController.GetCalendars();
+            if(result is OkObjectResult ok)
+            {
+                return View(ok.Value);
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Setting([FromForm]IEnumerable<CalendarInfoDto> calendarInfoDtos)
+        {
+            return View();
+        }
+
+        public IActionResult Duplicate()
         {
             return View();
         }

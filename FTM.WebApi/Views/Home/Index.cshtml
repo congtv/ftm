@@ -6,13 +6,13 @@
     <div class="menu">
         <ul class="list">
             <li class="active">
-                <a href="index.html">
+                <a href="/">
                     <i class="material-icons">home</i>
                     <span>Home</span>
                 </a>
             </li>
             <li>
-                <a href="pages/helper-classes.html">
+                <a asp-action="Setting">
                     <i class="material-icons">layers</i>
                     <span>Cài đặt phòng cho phép book</span>
                 </a>
@@ -54,7 +54,7 @@
             <div id="searchingInfo" class="body">
                 <div class="row clearfix">
                     <div class="col-xs-12">
-                        <h2 class="card-inside-title">Thời gian trong khoảng</h2>
+                        <h2 class="card-inside-title">THỜI GIAN TRONG KHOẢNG</h2>
                         <div class="input-daterange input-group" id="bs_datepicker_range_container">
                             <div class="form-line">
                                 <input type="text" id="startDate" class="form-control" placeholder="Ngày bắt đầu...">
@@ -139,20 +139,19 @@
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
-                    <table id="freeTimeTable" class="table table-hover dashboard-task-infos">
+                    <table id="calendarSettingTable" class="table table-hover dashboard-task-infos">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th width="20%">#</th>
                                 <th>Tên phòng</th>
                             </tr>
                         </thead>
-                        <tbody>
-                        </tbody>
+                        <tbody />
                     </table>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-link waves-effect">LƯU CÀI ĐẶT</button>
+                <button type="button" id="btnSaveCalendarSettings" data-dismiss="modal" class="btn btn-link waves-effect">LƯU CÀI ĐẶT</button>
                 <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">ĐÓNG</button>
             </div>
         </div>

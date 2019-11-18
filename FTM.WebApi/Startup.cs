@@ -41,7 +41,7 @@ namespace FTM.WebApi
             #region Common
 
             services.AddCors();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().AddControllersAsServices().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             #endregion Common
 

@@ -21,7 +21,6 @@ namespace FTM.WebApi.Controllers
             this.context = context;
         }
 
-        [EnableCors]
         [HttpGet]
         public IActionResult GetCalendars()
         {
@@ -39,7 +38,6 @@ namespace FTM.WebApi.Controllers
             }
         }
 
-        [EnableCors]
         [HttpPost]
         public async Task<IActionResult> UpdateCalendarsUsable([FromBody] IEnumerable<CalendarInfoDto> calendarInfoDto)
         {
@@ -51,13 +49,12 @@ namespace FTM.WebApi.Controllers
                         return BadRequest();
                     var calendars = context.FtmCalendarInfo.ToArray();
 
-                    foreach (var calendar in calendars)
+                    foreach (var item in calendarInfoDto)
                     {
-                        var editedRoom = calendarInfoDto.First(x => x.RoomId == calendar.CalendarId);
-
-                        calendar.CalendarName = editedRoom.RoomName;
-                        calendar.IsUseable = editedRoom.IsUseable;
-                        calendar.Description = editedRoom.Description;
+                        var update = calendars.First(x => x.CalendarId == item.RoomId);
+                        update.IsUseable = item.IsUseable;
+                        //update.CalendarName = editedRoom.RoomName;
+                        //update.Description = editedRoom.Description;
                     }
                     await context.SaveChangesAsync();
                     transaction.Commit();

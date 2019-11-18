@@ -36,7 +36,7 @@ namespace FTM.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Get([FromBody] GetEventRequestModel requestModel)
         {
-            if (requestModel.StartDateTime < requestModel.EndDateTime)
+            if (requestModel.StartDateTime > requestModel.EndDateTime)
                 return BadRequest("End date time must be greater than start date time");
             try
             {
@@ -72,76 +72,84 @@ namespace FTM.WebApi.Controllers
         /// <returns></returns>
         private async Task<IEnumerable<GetEventResultModel>> GetFreeTimes(CalendarService service, FtmCalendarInfo[] calendars, GetEventRequestModel requestModel)
         {
-            requestModel.StartDateTime = DateTime.Now.AddDays(1).CreateTime(new TimeSpan(0, 0, 0));
-            requestModel.EndDateTime = DateTime.Now.AddDays(100);
-
-            var resultDic = GetDateRangeRequest<List<GetEventResultModel>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
-
-            #region Get time work in config
-
-            var startTimeInDayConfig = configuration["Settings:StartTimeInDay"];
-            var endTimeInDayConfig = configuration["Settings:EndTimeInDay"];
-            startTimeInDay = TimeSpan.TryParse(startTimeInDayConfig, out startTimeInDay) ? startTimeInDay : new TimeSpan(7, 0, 0);
-            endTimeInDay = TimeSpan.TryParse(endTimeInDayConfig, out endTimeInDay) ? endTimeInDay : new TimeSpan(20, 0, 0);
-
-            #endregion Get time work in config
-
-            foreach (var calendar in calendars)
+            try
             {
-                EventsResource.ListRequest request = service.Events.List(calendar.CalendarId);
-                request.TimeMin = requestModel.StartDateTime;
-                request.TimeMax = requestModel.EndDateTime;
-                request.ShowDeleted = false;
-                request.SingleEvents = true;
-                request.MaxResults = 999;
-                request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
-                Events events = await request.ExecuteAsync();
+                requestModel.StartDateTime = DateTime.Now.AddDays(1).CreateTime(new TimeSpan(0, 0, 0));
+                requestModel.EndDateTime = DateTime.Now.AddDays(3);
 
-                var itemDic = events.Items.GroupBy(x => x.Start.DateTime.Value.Date, x => x).ToDictionary(x => x.Key, x => x.ToList());
+                var resultDic = GetDateRangeRequest<List<GetEventResultModel>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
 
-                #region Check day hasn't any event
+                #region Get time work in config
 
-                var dateDic = GetDateRangeRequest<List<Event>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
-                foreach (var key in itemDic.Keys)
+                var startTimeInDayConfig = configuration["Settings:StartTimeInDay"];
+                var endTimeInDayConfig = configuration["Settings:EndTimeInDay"];
+                startTimeInDay = TimeSpan.TryParse(startTimeInDayConfig, out startTimeInDay) ? startTimeInDay : new TimeSpan(7, 0, 0);
+                endTimeInDay = TimeSpan.TryParse(endTimeInDayConfig, out endTimeInDay) ? endTimeInDay : new TimeSpan(20, 0, 0);
+
+                #endregion Get time work in config
+
+                foreach (var calendar in calendars)
                 {
-                    dateDic[key] = itemDic[key];
-                }
+                    EventsResource.ListRequest request = service.Events.List(calendar.CalendarId);
+                    request.TimeMin = requestModel.StartDateTime;
+                    request.TimeMax = requestModel.EndDateTime;
+                    request.ShowDeleted = false;
+                    request.SingleEvents = true;
+                    request.MaxResults = 999;
+                    request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
+                    Events events = await request.ExecuteAsync();
 
-                foreach (var dateKey in dateDic.Keys)
-                {
-                    if (dateDic[dateKey].Count == 0)
+                    var itemDic = events.Items.GroupBy(x => x.Start.DateTime.Value.Date, x => x).ToDictionary(x => x.Key, x => x.ToList());
+
+                    #region Check day hasn't any event
+
+                    var dateDic = GetDateRangeRequest<List<Event>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
+                    foreach (var key in itemDic.Keys)
                     {
-                        resultDic[dateKey].Add(new GetEventResultModel()
-                        {
-                            CalendarId = calendar.CalendarId,
-                            CalendarName = events.Items.First().Organizer.DisplayName,
-                            StartTime = dateKey.CreateTime(startTimeInDay),
-                            EndTime = dateKey.CreateTime(endTimeInDay),
-                            HtmlLink = $"{baseLink}{dateKey.CreateLinkParam()}"
-                        });
+                        dateDic[key] = itemDic[key];
                     }
-                }
 
-                #endregion Check day hasn't any event
-
-                foreach (var key in itemDic.Keys)
-                {
-                    var listEventByDay = itemDic[key];
-
-                    for (var index = 0; index < listEventByDay.Count(); index++)
+                    foreach (var dateKey in dateDic.Keys)
                     {
-                        if (CheckEvent(index, listEventByDay, out List<GetEventResultModel> result))
+                        if (dateDic[dateKey].Count == 0)
                         {
-                            if (resultDic.TryGetValue(key, out List<GetEventResultModel> dicResult))
+                            resultDic[dateKey].Add(new GetEventResultModel()
                             {
-                                dicResult.AddRange(result);
+                                CalendarId = calendar.CalendarId,
+                                CalendarName = itemDic.Any() ? events.Items.FirstOrDefault()?.Organizer?.DisplayName : calendar.CalendarName,
+                                StartTime = dateKey.CreateTime(startTimeInDay),
+                                EndTime = dateKey.CreateTime(endTimeInDay),
+                                HtmlLink = $"{baseLink}{dateKey.CreateLinkParam()}"
+                            });
+                        }
+                    }
+
+                    #endregion Check day hasn't any event
+
+                    foreach (var key in itemDic.Keys)
+                    {
+                        var listEventByDay = itemDic[key];
+
+                        for (var index = 0; index < listEventByDay.Count(); index++)
+                        {
+                            if (CheckEvent(index, listEventByDay, out List<GetEventResultModel> result))
+                            {
+                                if (resultDic.TryGetValue(key, out List<GetEventResultModel> dicResult))
+                                {
+                                    dicResult.AddRange(result);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            return resultDic.Values.SelectMany(x => x);
+                return resultDic.Values.SelectMany(x => x);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
         /// <summary>

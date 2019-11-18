@@ -1,0 +1,89 @@
+﻿@model IEnumerable<FTM.WebApi.Models.CalendarInfoDto>
+
+@{
+    ViewData["Title"] = "Setting";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Menu
+    {
+    <div class="menu">
+        <ul class="list">
+            <li>
+                <a asp-action="Index">
+                    <i class="material-icons">home</i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="active">
+                <a asp-action="Setting">
+                    <i class="material-icons">layers</i>
+                    <span>Cài đặt phòng cho phép book</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript:void(0);">
+                    <i class="material-icons">widgets</i>
+                    <span>Danh sách book trùng</span>
+                </a>
+            </li>
+            <li>
+                <a href="index.html">
+                    <i class="material-icons">home</i>
+                    <span>Đăng nhập lại tài khoản Google</span>
+                </a>
+            </li>
+            <li>
+                <a href="index.html">
+                    <i class="material-icons">input</i>
+                    <span>Signout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+}
+
+<div class="row clearfix">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div data-toggle="collapse" data-target="#listRoom" class="header">
+                <h2>CÀI ĐẶT PHÒNG BOOK CHO TẤT CẢ</h2>
+            </div>
+            <div id="listRoom" class="body">
+                <div class="table-responsive">
+                    <table id="settingRoomTable" class="table table-hover dashboard-task-infos">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tên phòng</th>
+                                <th>Mô tả</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" id="chkChon+@item.RoomId" data-room-id="@item.RoomId" class="chk-col-light-blue" checked="@item.IsUseable" />
+                                        <label for="chkChon+@item.RoomId">CHỌN</label>
+                                    </td>
+                                    <td>
+                                        @item.RoomName
+                                    </td>
+                                    <td>
+                                        @item.Description
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <button id="btnSaveSettingRoomTable" type="button" class="btn bg-orange waves-effect">
+                    <i class="material-icons">save</i>
+                    <span>LƯU CÀI ĐẶT</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

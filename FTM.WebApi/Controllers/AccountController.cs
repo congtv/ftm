@@ -1,6 +1,7 @@
 ﻿using FTM.WebApi.Entities;
 using FTM.WebApi.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -49,13 +50,13 @@ namespace FTM.WebApi.Controllers
                                 };
 
             // create identity
-            ClaimsIdentity identity = new ClaimsIdentity(claims, "Cookie");
+            ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             // create principal
             ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
             await HttpContext.SignInAsync(
-                    scheme: "Cookie",
+                    scheme: CookieAuthenticationDefaults.AuthenticationScheme,
                     principal: principal,
                     properties: new AuthenticationProperties
                     {
@@ -70,7 +71,7 @@ namespace FTM.WebApi.Controllers
         public async Task<IActionResult> Logout(string requestPath )
         {
             await HttpContext.SignOutAsync(
-                    scheme: "Cookie");
+                    scheme: CookieAuthenticationDefaults.AuthenticationScheme);
 
             return RedirectToAction("Login");
         }

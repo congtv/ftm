@@ -3,8 +3,10 @@ using FTM.WebApi.Entities;
 using FTM.WebApi.Models;
 using Google.Apis.Auth.OAuth2.Flows;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -12,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
@@ -77,13 +80,15 @@ namespace FTM.WebApi
             var key = Encoding.ASCII.GetBytes(Configuration["Settings:Jwt:Key"]);
             services.AddAuthentication(v =>
             {
-                v.DefaultScheme = "Cookie";
-                //v.DefaultAuthenticateScheme = "Cookie";
-                v.DefaultSignInScheme = "Cookie";
+                v.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                v.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                v.DefaultChallengeScheme = "Google";
+                v.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
-            .AddCookie("Cookie", op =>
+            .AddCookie("Cookies", op =>
             {
-                op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30); ;
+                //op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30);
+                op.ExpireTimeSpan = TimeSpan.FromMinutes(5);
                 op.SlidingExpiration = true;
                 op.LogoutPath = "/account/logout";
                 op.LoginPath = "/account/login";
@@ -92,7 +97,6 @@ namespace FTM.WebApi
             {
                 options.ClientId = Configuration["Google:ClientId"];
                 options.ClientSecret = Configuration["Google:ClientSecret"];
-                options.Scope.Add("profile");
                 options.ResponseType = "code id_token";
                 options.Authority = "https://accounts.google.com/";
                 options.CallbackPath = "/signin-google";
@@ -108,6 +112,7 @@ namespace FTM.WebApi
                 };
                 options.Events.OnRemoteFailure = (context) =>
                 {
+                    //context.SkipHandler();
                     return Task.CompletedTask;
                 };
                 options.Events.OnAuthorizationCodeReceived = async (context) =>
@@ -165,8 +170,11 @@ namespace FTM.WebApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddConsole();
+            var logger = loggerFactory.CreateLogger("Default");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -199,14 +207,14 @@ namespace FTM.WebApi
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
                 });
             }
-            app.UseCors(x => x
-              .AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials());
+            //app.UseCors(x => x
+            //  .AllowAnyOrigin()
+            //  .AllowAnyMethod()
+            //  .AllowAnyHeader()
+            //  .AllowCredentials());
 
             app.UseAuthentication();
-            //app.UseStaticFiles();
+            app.UseStaticFiles();
             app.UseCookiePolicy();
 
             app.UseMvc(routes =>
@@ -215,6 +223,19 @@ namespace FTM.WebApi
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            //app.Run(async context =>
+            //{
+            //    var connectionFeature = context.Connection;
+            //    logger.LogDebug($"Peer: {connectionFeature.RemoteIpAddress?.ToString()}:{connectionFeature.RemotePort}"
+            //        + $"{Environment.NewLine}"
+            //        + $"Sock: {connectionFeature.LocalIpAddress?.ToString()}:{connectionFeature.LocalPort}");
+
+            //    var response = $"hello, world{Environment.NewLine}";
+            //    context.Response.ContentLength = response.Length;
+            //    context.Response.ContentType = "text/plain";
+            //    await context.Response.WriteAsync(response);
+            //});
         }
     }
 }

@@ -93,6 +93,12 @@ namespace FTM.WebApi
                 op.LogoutPath = "/account/logout";
                 op.LoginPath = "/account/login";
             })
+            .AddCookie("GoogleCookies", op =>
+            {
+                //op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30);
+                op.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                op.SlidingExpiration = true;
+            })
             .AddGoogleOpenIdConnect("Google", options =>
             {
                 options.ClientId = Configuration["Google:ClientId"];
@@ -102,6 +108,29 @@ namespace FTM.WebApi
                 options.CallbackPath = "/signin-google";
                 options.SignedOutCallbackPath = "/signout-callback-google";
                 options.RemoteSignOutPath = "/signout-google";
+                options.SignInScheme =  "GoogleCookies";
+                options.ForwardSignIn = "GoogleCookies";
+                options.NonceCookie = new CookieBuilder()
+                {
+                    Name = "GoogleCookie",
+                    SameSite = SameSiteMode.Strict,
+                    SecurePolicy = CookieSecurePolicy.SameAsRequest,
+                    MaxAge = new TimeSpan(1, 0, 0),
+                    HttpOnly = true,
+                    Path = "/",
+                    IsEssential= true
+                };
+
+                options.CorrelationCookie = new CookieBuilder()
+                {
+                    Name = "GoogleCookie1",
+                    SameSite = SameSiteMode.Strict,
+                    SecurePolicy = CookieSecurePolicy.SameAsRequest,
+                    MaxAge = new TimeSpan(1, 0, 0),
+                    HttpOnly = true,
+                    Path = "/",
+                    IsEssential = true,
+                };
                 options.Scope.Add("https://www.googleapis.com/auth/calendar");
                 options.Events.OnRedirectToIdentityProvider = (context) =>
                 {
@@ -130,7 +159,7 @@ namespace FTM.WebApi
                         }
                         else
                         {
-                            if(context.Request.Scheme == "https")
+                            if (context.Request.Scheme == "https")
                             {
                                 redirectUri = $"{this.Configuration["Settings:UrlSchemaHttps"]}signin-google";
                             }
@@ -178,15 +207,15 @@ namespace FTM.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                //// Enable middleware to serve generated Swagger as a JSON endpoint.
-                //app.UseSwagger();
+                // Enable middleware to serve generated Swagger as a JSON endpoint.
+                app.UseSwagger();
 
-                //// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-                //// specifying the Swagger JSON endpoint.
-                //app.UseSwaggerUI(c =>
-                //{
-                //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
-                //});
+                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+                // specifying the Swagger JSON endpoint.
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
+                });
             }
             else
             {
@@ -207,11 +236,11 @@ namespace FTM.WebApi
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
                 });
             }
-            //app.UseCors(x => x
-            //  .AllowAnyOrigin()
-            //  .AllowAnyMethod()
-            //  .AllowAnyHeader()
-            //  .AllowCredentials());
+            app.UseCors(x => x
+              .AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials());
 
             app.UseAuthentication();
             app.UseStaticFiles();
@@ -224,18 +253,18 @@ namespace FTM.WebApi
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            //app.Run(async context =>
-            //{
-            //    var connectionFeature = context.Connection;
-            //    logger.LogDebug($"Peer: {connectionFeature.RemoteIpAddress?.ToString()}:{connectionFeature.RemotePort}"
-            //        + $"{Environment.NewLine}"
-            //        + $"Sock: {connectionFeature.LocalIpAddress?.ToString()}:{connectionFeature.LocalPort}");
+            app.Run(async context =>
+            {
+                var connectionFeature = context.Connection;
+                logger.LogDebug($"Peer: {connectionFeature.RemoteIpAddress?.ToString()}:{connectionFeature.RemotePort}"
+                    + $"{Environment.NewLine}"
+                    + $"Sock: {connectionFeature.LocalIpAddress?.ToString()}:{connectionFeature.LocalPort}");
 
-            //    var response = $"hello, world{Environment.NewLine}";
-            //    context.Response.ContentLength = response.Length;
-            //    context.Response.ContentType = "text/plain";
-            //    await context.Response.WriteAsync(response);
-            //});
+                var response = $"hello, world{Environment.NewLine}";
+                context.Response.ContentLength = response.Length;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(response);
+            });
         }
     }
 }

@@ -98,6 +98,19 @@ namespace FTM.WebApi
                 op.SlidingExpiration = true;
                 op.LogoutPath = "/account/logout";
                 op.LoginPath = "/account/login";
+                op.Events = new CookieAuthenticationEvents()
+                {
+                    OnValidatePrincipal = context =>
+                    {
+                        var isReauthenGoogle = context.Request.Path == "/Account/Authenticate";
+                        if (isReauthenGoogle)
+                        {
+                            context.Request.Path = new PathString("/account/authenticate/success");
+                            context.RejectPrincipal();
+                        }
+                        return Task.CompletedTask;
+                    },
+                };
             })
             .AddGoogleOpenIdConnect("Google", options =>
             {

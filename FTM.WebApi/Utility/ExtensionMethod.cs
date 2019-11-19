@@ -117,5 +117,12 @@ namespace FTM.WebApi.Utility
                 RoomId = calendar.CalendarId
             };
         }
+
+        public static TimeSpan DoubleToTimeSpam(this double num)
+        {
+            var hour = (int)num;
+            var minutes = (int)(num - hour) * 60;
+            return new TimeSpan(hour, minutes, 0);
+        }
     }
 }

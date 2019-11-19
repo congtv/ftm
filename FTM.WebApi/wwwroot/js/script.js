@@ -188,3 +188,20 @@ $('#btnSaveSettingRoomTable').on('click', function () {
             });
         });
 });
+
+$('#renewGoogle').on('click', function () {
+    swal({
+        title: "THÔNG BÁO?",
+        text: "Việc đăng nhập lại account google có thể làm mất hết những cài đặt trước đó. Bạn có chắc không!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "OK",
+        closeOnConfirm: false
+    }, function () {
+            swal.close();
+            var top = screen.height / 2 - 350;
+            var left = screen.width / 2 - 250;
+            myWindow = window.open(RootUrl + '/account/authenticate', "_blank", 'location=yes,scrollbars=yes,status=yes,width=500,height=700,top=' + top + ',left=' + left + '');
+    });
+});

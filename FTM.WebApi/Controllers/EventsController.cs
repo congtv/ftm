@@ -37,29 +37,23 @@ namespace FTM.WebApi.Controllers
         public async Task<IActionResult> Get([FromBody] GetEventRequestModel requestModel)
         {
             if (requestModel.StartDateTime > requestModel.EndDateTime)
-                return BadRequest("End date time must be greater than start date time");
+                return BadRequest("Ngày bắt đầu đang bé hơn ngày kết thúc này!!!");
+            if (!requestModel.CalendarIds.Any())
+                return BadRequest("Phòng book cần ít nhất là 1 phòng!!!");
             try
             {
                 var service = new CalendarService(BaseClientServiceCreator.Create(clientInfo, dataStore));
                 var result = new List<GetEventResultModel>();
 
-                if (requestModel.CalendarIds.Any())
-                {
-                    var requestCalendars = context.FtmCalendarInfo.Where(x => requestModel.CalendarIds.Contains(x.CalendarId)).ToArray();
-                    var resultItems = await GetFreeTimes(service, requestCalendars, requestModel);
-                    result.AddRange(resultItems);
-                }
-                else
-                {
-                    var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable).ToArray();
-                    var resultItems = await GetFreeTimes(service, usableCalendars, requestModel);
-                    result.AddRange(resultItems);
-                }
+                var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable).ToArray();
+                var resultItems = await GetFreeTimes(service, usableCalendars, requestModel);
+                result.AddRange(resultItems);
+
                 return Ok(result);
             }
             catch
             {
-                return BadRequest();
+                return BadRequest("Chả biết lỗi gì nữa!!!");
             }
         }
 
@@ -74,9 +68,7 @@ namespace FTM.WebApi.Controllers
         {
             try
             {
-                requestModel.StartDateTime = DateTime.Now.AddDays(1).CreateTime(new TimeSpan(0, 0, 0));
-                requestModel.EndDateTime = DateTime.Now.AddDays(3);
-
+                var inTime = requestModel.Time.DoubleToTimeSpam();
                 var resultDic = GetDateRangeRequest<List<GetEventResultModel>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
 
                 #region Get time work in config
@@ -136,7 +128,7 @@ namespace FTM.WebApi.Controllers
                             {
                                 if (resultDic.TryGetValue(key, out List<GetEventResultModel> dicResult))
                                 {
-                                    dicResult.AddRange(result);
+                                    dicResult.AddRange(result.Where(x => (x.EndTime - x.StartTime) >= inTime).ToArray());
                                 }
                             }
                         }
@@ -147,7 +139,6 @@ namespace FTM.WebApi.Controllers
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }

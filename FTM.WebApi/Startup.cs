@@ -59,6 +59,12 @@ namespace FTM.WebApi
             #endregion Reverse proxy support
 
             services.Configure<ClientInfo>(Configuration.GetSection("Google"));
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
             services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<ClientInfo>>().Value);
 
             services.AddScoped(typeof(FtmDataStore));
@@ -93,12 +99,6 @@ namespace FTM.WebApi
                 op.LogoutPath = "/account/logout";
                 op.LoginPath = "/account/login";
             })
-            .AddCookie("GoogleCookies", op =>
-            {
-                //op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30);
-                op.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-                op.SlidingExpiration = true;
-            })
             .AddGoogleOpenIdConnect("Google", options =>
             {
                 options.ClientId = Configuration["Google:ClientId"];
@@ -108,40 +108,12 @@ namespace FTM.WebApi
                 options.CallbackPath = "/signin-google";
                 options.SignedOutCallbackPath = "/signout-callback-google";
                 options.RemoteSignOutPath = "/signout-google";
-                options.SignInScheme =  "GoogleCookies";
-                options.ForwardSignIn = "GoogleCookies";
-                options.NonceCookie = new CookieBuilder()
-                {
-                    Name = "GoogleCookie",
-                    SameSite = SameSiteMode.Strict,
-                    SecurePolicy = CookieSecurePolicy.SameAsRequest,
-                    MaxAge = new TimeSpan(1, 0, 0),
-                    HttpOnly = true,
-                    Path = "/",
-                    IsEssential= true
-                };
-
-                options.CorrelationCookie = new CookieBuilder()
-                {
-                    Name = "GoogleCookie1",
-                    SameSite = SameSiteMode.Strict,
-                    SecurePolicy = CookieSecurePolicy.SameAsRequest,
-                    MaxAge = new TimeSpan(1, 0, 0),
-                    HttpOnly = true,
-                    Path = "/",
-                    IsEssential = true,
-                };
                 options.Scope.Add("https://www.googleapis.com/auth/calendar");
                 options.Events.OnRedirectToIdentityProvider = (context) =>
                 {
                     Debug.WriteLine("***RedirectToIdentityProvider");
                     context.ProtocolMessage.Prompt = "consent";
                     context.ProtocolMessage.SetParameter("access_type", "offline");
-                    return Task.CompletedTask;
-                };
-                options.Events.OnRemoteFailure = (context) =>
-                {
-                    //context.SkipHandler();
                     return Task.CompletedTask;
                 };
                 options.Events.OnAuthorizationCodeReceived = async (context) =>
@@ -221,7 +193,7 @@ namespace FTM.WebApi
             {
                 //// Config for reverse proxy use subpath MathAppApi
                 //app.UsePathBase("/ftm");
-                //app.UseHsts();
+                app.UseHsts();
                 app.UseExceptionHandler(appBuilder =>
                 {
                     appBuilder.Run(async context =>
@@ -251,19 +223,6 @@ namespace FTM.WebApi
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
-            });
-
-            app.Run(async context =>
-            {
-                var connectionFeature = context.Connection;
-                logger.LogDebug($"Peer: {connectionFeature.RemoteIpAddress?.ToString()}:{connectionFeature.RemotePort}"
-                    + $"{Environment.NewLine}"
-                    + $"Sock: {connectionFeature.LocalIpAddress?.ToString()}:{connectionFeature.LocalPort}");
-
-                var response = $"hello, world{Environment.NewLine}";
-                context.Response.ContentLength = response.Length;
-                context.Response.ContentType = "text/plain";
-                await context.Response.WriteAsync(response);
             });
         }
     }

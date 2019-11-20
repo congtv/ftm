@@ -1,24 +1,24 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
 }
 @section Menu
-{
+    {
     <div class="menu">
         <ul class="list">
             <li class="active">
-                <a asp-action="Index">
+                <a class="a__reload" asp-action="Index">
                     <i class="material-icons">home</i>
                     <span>HOME</span>
                 </a>
             </li>
             <li>
-                <a asp-action="Setting">
+                <a class="a__reload" asp-action="Setting">
                     <i class="material-icons">layers</i>
                     <span>CÀI ĐẶT PHÒNG CHO PHÉP BOOK</span>
                 </a>
             </li>
             <li>
-                <a asp-action="Duplicate">
+                <a class="a__reload" asp-action="Duplicate">
                     <i class="material-icons">widgets</i>
                     <span>DANH SÁCH BOOK TRÙNG</span>
                 </a>
@@ -39,6 +39,27 @@
     </div>
 }
 
+@section Scripts{
+    <!-- Bootstrap Material Datetime Picker Plugin Js -->
+    <script src="~/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
+    <!-- Bootstrap Datepicker Plugin Js -->
+    <script src="~/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <!-- Moment Plugin Js -->
+    <script src="~/plugins/momentjs/moment.js"></script>
+    <script src="~/js/pages/ui/dialogs.js"></script>
+
+    <script src="~/js/pages/forms/basic-form-elements.js"></script>
+
+}
+
+@section Css{
+    <!-- Bootstrap Material Datetime Picker Css -->
+    <link href="~/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css" rel="stylesheet" />
+
+    <!-- Bootstrap DatePicker Css -->
+    <link href="~/plugins/bootstrap-datepicker/css/bootstrap-datepicker.css" rel="stylesheet" />
+}
+
 <!-- Search setting -->
 <div class="row clearfix">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -54,11 +75,11 @@
                         <h2 class="card-inside-title">THỜI GIAN TRONG KHOẢNG</h2>
                         <div class="input-daterange input-group" id="bs_datepicker_range_container">
                             <div class="form-line">
-                                <input type="text" id="startDate" class="form-control" placeholder="Ngày bắt đầu...">
+                                <input type="text" id="startDate" autocomplete="off" class="form-control" placeholder="Ngày bắt đầu...">
                             </div>
                             <span class="input-group-addon">tới</span>
                             <div class="form-line">
-                                <input type="text" id="endDate" class="form-control" placeholder="Ngày kết thúc...">
+                                <input type="text" id="endDate" autocomplete="off" class="form-control" placeholder="Ngày kết thúc...">
                             </div>
                         </div>
                     </div>
@@ -117,8 +138,7 @@
                                 <th id="goto" width="15%">LINK</th>
                             </tr>
                         </thead>
-                        <tbody>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
@@ -126,7 +146,6 @@
     </div>
 </div>
 <!-- #END#  Data -->
-
 <!-- Model Default Size -->
 <div class="modal fade" id="defaultModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">

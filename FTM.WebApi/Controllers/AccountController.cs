@@ -41,6 +41,7 @@ namespace FTM.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("login")]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!IsAuthenticated(model.Username, model.Password))
@@ -93,12 +94,13 @@ namespace FTM.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("authenticate-google")]
         [Authorize(AuthenticationSchemes = "Google")]
         public async Task<IActionResult> Authenticate()
         {
             using (var transaction = context.Database.BeginTransaction())
             {
-                var service = new CalendarService(BaseClientServiceCreator.Create(clientInfo, dataStore));
+                var service = new CalendarService(BaseClientServiceCreator.Create(context, clientInfo, dataStore));
                 // Define parameters of request.
                 var request = service.CalendarList.List();
                 var result = await request.ExecuteAsync();

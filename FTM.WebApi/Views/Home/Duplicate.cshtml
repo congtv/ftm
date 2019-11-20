@@ -1,8 +1,7 @@
 ﻿@model IEnumerable<FTM.WebApi.Models.EventErrorResult>
 
 @{
-    ViewData["Title"] = "Duplicate";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Kiểm tra book trùng";
 }
 
 @section Menu
@@ -10,19 +9,19 @@
     <div class="menu">
         <ul class="list">
             <li>
-                <a asp-action="Index">
+                <a class="a__reload" asp-action="Index">
                     <i class="material-icons">home</i>
                     <span>HOME</span>
                 </a>
             </li>
             <li>
-                <a asp-action="Setting">
+                <a class="a__reload" asp-action="Setting">
                     <i class="material-icons">layers</i>
                     <span>CÀI ĐẶT PHÒNG CHO PHÉP BOOK</span>
                 </a>
             </li>
             <li class="active">
-                <a asp-action="Duplicate">
+                <a class="a__reload" asp-action="Duplicate">
                     <i class="material-icons">widgets</i>
                     <span>DANH SÁCH BOOK TRÙNG</span>
                 </a>
@@ -43,6 +42,32 @@
     </div>
 }
 
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            var count = @ViewData["Count"];
+            if (count > 0) {
+                swal({
+                    title: "THÔNG BÁO",
+                    type: "warning",
+                    text: "Tìm thấy @ViewData["Count"] lịch bị trùng!!!"
+                });
+            }
+            else {
+                 swal({
+                    title: "THÔNG BÁO",
+                    type: "warning",
+                    text: "Không tìm bất cứ lịch trùng nào!!!"
+                });
+            }
+        });
+    </script>
+}
+
+@section Css{ 
+
+}
+
 <div class="row clearfix">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="card">
@@ -51,7 +76,7 @@
             </div>
             <div id="listDuplicate" class="body">
                 <div class="table-responsive">
-                    <table id="settingRoomTable" class="table table-hover dashboard-task-infos">
+                    <table id="duplicateTable" class="table table-hover dashboard-task-infos">
                         <thead>
                             <tr>
                                 <th>Tiêu đề</th>

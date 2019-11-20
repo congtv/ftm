@@ -42,7 +42,7 @@ namespace FTM.WebApi.Controllers
                 return BadRequest("Phòng book cần ít nhất là 1 phòng!!!");
             try
             {
-                var service = new CalendarService(BaseClientServiceCreator.Create(clientInfo, dataStore));
+                var service = new CalendarService(BaseClientServiceCreator.Create(context, clientInfo, dataStore));
                 var result = new List<GetEventResultModel>();
 
                 var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable).ToArray();
@@ -264,7 +264,7 @@ namespace FTM.WebApi.Controllers
             }
         }
 
-        [HttpGet("duplicate")]
+        [HttpPost("duplicate")]
         public async Task<IActionResult> GetDuplicateEvents()
         {
             try
@@ -273,7 +273,7 @@ namespace FTM.WebApi.Controllers
                 var endTimeInDayConfig = configuration["Settings:EndTimeInDay"];
                 startTimeInDay = TimeSpan.TryParse(startTimeInDayConfig, out startTimeInDay) ? startTimeInDay : new TimeSpan(7, 0, 0);
                 endTimeInDay = TimeSpan.TryParse(endTimeInDayConfig, out endTimeInDay) ? endTimeInDay : new TimeSpan(20, 0, 0);
-                var service = new CalendarService(BaseClientServiceCreator.Create(clientInfo, dataStore));
+                var service = new CalendarService(BaseClientServiceCreator.Create(context, clientInfo, dataStore));
                 var results = new List<EventErrorResult>();
                 var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable).ToArray();
                 var timeMin = DateTime.Now;

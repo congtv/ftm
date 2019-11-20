@@ -17,9 +17,9 @@ window.onload = function () {
             localStorage.setItem('setCalendarTime', now);
         }).fail(function () {
             swal({
-                title: "THÔNG BÁO",
-                type: "warning",
-                text: "Không tìm thấy bất kì danh sách phòng nào!!!"
+                title: 'THÔNG BÁO',
+                type: 'warning',
+                text: 'Không tìm thấy bất kì danh sách phòng nào!!!'
             });
         });
     }
@@ -38,6 +38,16 @@ GetCalendars = function () {
     return null;
 };
 
+GetHourFromDateString = function (dateStr) {
+    var dt = new Date(dateStr);
+    var hour = dt.getHours();
+    var minutes = dt.getMinutes();
+    if (minutes < 10)
+        minutes = '0' + minutes;
+
+    return hour + ':' + minutes;
+};
+
 $('#btnSearch').on('click', function () {
     var calendarIds = JSON.parse(localStorage.getItem('listCalendar')).filter(item => {
         if (item.isUseable) {
@@ -47,9 +57,9 @@ $('#btnSearch').on('click', function () {
 
     if (calendarIds.length <= 0) {
         swal({
-            title: "THÔNG BÁO",
-            type: "warning",
-            text: "Bạn đang không chọn bất kì danh sách nào!!!"
+            title: 'THÔNG BÁO',
+            type: 'warning',
+            text: 'Bạn đang không chọn bất kì danh sách nào!!!'
         });
         return;
     }
@@ -112,16 +122,6 @@ $('#btnSearch').on('click', function () {
     });
 });
 
-GetHourFromDateString = function (dateStr) {
-    var dt = new Date(dateStr);
-    var hour = dt.getHours();
-    var minutes = dt.getMinutes();
-    if (minutes < 10)
-        minutes = '0' + minutes;
-
-    return hour + ':' + minutes;
-};
-
 $("#defaultModal").on('show.bs.modal', function () {
     var body = $('#calendarSettingTable').find('tbody');
     body.empty();
@@ -168,13 +168,7 @@ $('#btnSaveSettingRoomTable').on('click', function () {
         data: JSON.stringify(newSetting)
     })
         .done(function (data) {
-            var newListCalendarLocal = ListCalendar.filter(item => {
-                var setting = newSetting.find(set => set.RoomId === item.roomId);
-                if (setting.IsUseable)
-                    return item;
-            });
-
-            localStorage.setItem('listCalendar', JSON.stringify(newListCalendarLocal));
+            localStorage.setItem('listCalendar', JSON.stringify(data));
             var now = new Date().getTime();
             localStorage.setItem('setCalendarTime', now);
 
@@ -202,6 +196,11 @@ $('#renewGoogle').on('click', function () {
             swal.close();
             var top = screen.height / 2 - 350;
             var left = screen.width / 2 - 250;
-            myWindow = window.open(RootUrl + '/account/authenticate', "_blank", 'location=yes,scrollbars=yes,status=yes,width=500,height=700,top=' + top + ',left=' + left + '');
+            myWindow = window.open(RootUrl + '/authenticate-google', "_blank", 'location=yes,scrollbars=yes,status=yes,width=500,height=700,top=' + top + ',left=' + left + '');
     });
 });
+
+$('.a__reload').on('click', function () {
+    $('.page-loader-wrapper').fadeIn();
+});
+

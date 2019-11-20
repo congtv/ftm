@@ -58,7 +58,14 @@ namespace FTM.WebApi.Controllers
                     }
                     await context.SaveChangesAsync();
                     transaction.Commit();
-                    return NoContent();
+                    var result = context.FtmCalendarInfo.Where(x => x.IsUseable).Select(x => new CalendarInfoDto()
+                    {
+                        RoomId = x.CalendarId,
+                        RoomName = x.CalendarName,
+                        IsUseable = x.IsUseable,
+                        Description = x.Description
+                    });
+                    return Ok(result);
                 }
                 catch
                 {

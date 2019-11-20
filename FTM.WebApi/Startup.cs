@@ -233,9 +233,26 @@ namespace FTM.WebApi
 
             app.UseMvc(routes =>
             {
+                //routes
+                //.MapRoute(
+                //   name: "setting",
+                //   template: "{controller=Home}/{action=Setting}")
+                //.MapRoute(
+                //   name: "duplicate",
+                //   template: "{controller=Home}/{action=Duplicate}");
+
+                //routes.MapRoute(
+                //   name: "login",
+                //   template: "{controller=Account}/{action=Login}");
+
+                //routes.MapRoute(
+                //   name: "authen-google",
+                //   template: "{controller=Account}/{action=Authenticate}/");
+
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/");
+
             });
         }
     }

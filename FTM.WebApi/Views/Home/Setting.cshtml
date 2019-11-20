@@ -1,8 +1,7 @@
 ﻿@model IEnumerable<FTM.WebApi.Models.CalendarInfoDto>
 
 @{
-    ViewData["Title"] = "Setting";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Cài đặt phòng trong hệ thống";
 }
 
 @section Menu
@@ -10,19 +9,19 @@
     <div class="menu">
         <ul class="list">
             <li>
-                <a asp-action="Index">
+                <a class="a__reload" asp-action="Index">
                     <i class="material-icons">home</i>
                     <span>HOME</span>
                 </a>
             </li>
             <li class="active">
-                <a asp-action="Setting">
+                <a class="a__reload" asp-action="Setting">
                     <i class="material-icons">layers</i>
                     <span>CÀI ĐẶT PHÒNG CHO PHÉP BOOK</span>
                 </a>
             </li>
             <li>
-                <a asp-action="Duplicate">
+                <a class="a__reload" asp-action="Duplicate">
                     <i class="material-icons">widgets</i>
                     <span>DANH SÁCH BOOK TRÙNG</span>
                 </a>

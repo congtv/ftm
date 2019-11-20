@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FTM.WebApi.Controllers
@@ -23,12 +25,14 @@ namespace FTM.WebApi.Controllers
             this.eventsController = eventsController;
         }
 
+        [Route("index")]
         public IActionResult Index()
         {
             return View();
         }
 
         [HttpGet]
+        [Route("setting")]
         public IActionResult Setting()
         {
             var result = calendarsController.GetCalendars();
@@ -40,16 +44,19 @@ namespace FTM.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("duplicate")]
         public async Task<IActionResult> Duplicate()
         {
             var result = await eventsController.GetDuplicateEvents();
             if (result is OkObjectResult ok)
             {
+                int count = (ok.Value as IEnumerable<EventErrorResult>).Count();
+                ViewData["Count"] = count;
                 return View(ok.Value);
             }
             else
             {
-                ViewBag["Message"] = "Không tìm thấy bất cứ lịch trùng nào!!!";
+                ViewData["Count"] = 0;
                 return View();
             }
         }

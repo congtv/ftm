@@ -1,15 +1,18 @@
 ﻿using FTM.WebApi.Common;
+using FTM.WebApi.Entities;
 using FTM.WebApi.Models;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Services;
+using System.Linq;
 using System.Threading;
 
 namespace FTM.WebApi.Utility
 {
     public class BaseClientServiceCreator
     {
-        public static BaseClientService.Initializer Create(ClientInfo clientInfo, FtmDataStore dataStore)
+        public static BaseClientService.Initializer Create(FtmDbContext context, ClientInfo clientInfo, FtmDataStore dataStore)
         {
             var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
             {
@@ -20,7 +23,9 @@ namespace FTM.WebApi.Utility
                 },
                 DataStore = dataStore, // match the one defined in OnAuthorizationCodeReceived method
             });
-            var tokenResponse = flow.LoadTokenAsync(Constains.UserId, CancellationToken.None).Result;
+            var ftmToken = context.FtmTokenResponses.First(x => x.UserId == Constains.UserId);
+
+            var tokenResponse = ftmToken.GetTokenResponseInfo();
             var userCredential = new UserCredential(flow, Constains.UserId, tokenResponse);
             return new BaseClientService.Initializer() { HttpClientInitializer = userCredential };
         }

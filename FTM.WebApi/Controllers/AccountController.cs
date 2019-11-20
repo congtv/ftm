@@ -41,7 +41,7 @@ namespace FTM.WebApi.Controllers
         }
 
         [HttpPost]
-        [Route("login")]
+        [Route("/account/login")]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!IsAuthenticated(model.Username, model.Password))

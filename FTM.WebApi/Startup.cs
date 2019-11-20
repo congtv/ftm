@@ -92,9 +92,18 @@ namespace FTM.WebApi
             {
                 //op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30);
                 op.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                //op.Cookie = new CookieBuilder()
+                //{
+                //    HttpOnly = true,
+                //    Expiration = TimeSpan.FromMinutes(5),
+                //    SecurePolicy = CookieSecurePolicy.SameAsRequest,
+                //    Name = "cookie-login",
+                //    MaxAge = new TimeSpan(30, 0, 0, 0),
+                //    SameSite = SameSiteMode.Strict
+                //};
                 op.SlidingExpiration = true;
-                op.LogoutPath = "/logout";
-                op.LoginPath = "/login";
+                op.LogoutPath = "/account/logout";
+                op.LoginPath = "/account/login";
                 op.Events = new CookieAuthenticationEvents()
                 {
                     OnValidatePrincipal = context =>
@@ -224,7 +233,6 @@ namespace FTM.WebApi
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}");
-
             });
         }
     }

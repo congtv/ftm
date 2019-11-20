@@ -16,4 +16,12 @@ th {
     a.btn.bg-teal.waves-effect span{
         display: none;
     }
+
+    #btnSearch span {
+        display: none;
+    }
+
+    #btnSetting span {
+        display: none;
+    }
 }

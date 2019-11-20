@@ -27,6 +27,12 @@ window.onload = function () {
     ListCalendar = JSON.parse(localStorage.getItem('listCalendar'));
 };
 
+$(window).resize(function () {
+    //if (window.innerWidth <= 1000) $homeIcon.addClass('lg-2x');
+    //else $homeIcon.removeClass('lg-2x');
+});
+
+
 GetCalendars = function () {
     $.ajax({
         url: RootUrl + '/api/calendars',

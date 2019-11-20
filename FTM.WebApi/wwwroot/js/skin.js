@@ -1,12 +1,25 @@
 skinChanger();
 activateNotificationAndTasksScroll();
-
 setSkinListHeightAndScroll(true);
 setSettingListHeightAndScroll(true);
 $(window).resize(function () {
     setSkinListHeightAndScroll(false);
     setSettingListHeightAndScroll(false);
 });
+
+document.addEventListener("DOMContentLoaded", function (event) {
+    var skin = localStorage.getItem('skin');
+    if (skin !== null) {
+        var $body = $('body');
+        var oldSkin = $('.right-sidebar .demo-choose-skin li[data-theme="' + skin + '"]');
+        var existTheme = $('.right-sidebar .demo-choose-skin li.active').data('theme');
+        $('.right-sidebar .demo-choose-skin li').removeClass('active');
+        $body.removeClass('theme-' + existTheme);
+        oldSkin.addClass('active');
+        $body.addClass('theme-' + skin);
+    }
+});
+
 //Skin changer
 function skinChanger() {
     $('.right-sidebar .demo-choose-skin li').on('click', function () {
@@ -19,6 +32,7 @@ function skinChanger() {
         $this.addClass('active');
 
         $body.addClass('theme-' + $this.data('theme'));
+        var skin = localStorage.setItem('skin', $this.data('theme'));
     });
 }
 

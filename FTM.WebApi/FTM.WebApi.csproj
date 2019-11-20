@@ -5,13 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove=".gitignore" />
-    <None Remove="FtmDatabase.db3" />
-    <None Remove="Models\ClientInfo.cs~RFc70035c.TMP" />
+    <Compile Remove="Data\**" />
+    <Content Remove="Data\**" />
+    <EmbeddedResource Remove="Data\**" />
+    <None Remove="Data\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
+    <None Remove=".gitignore" />
+    <None Remove="FtmDatabase.db3" />
+    <None Remove="Models\ClientInfo.cs~RFc70035c.TMP" />
   </ItemGroup>
 
   <ItemGroup>

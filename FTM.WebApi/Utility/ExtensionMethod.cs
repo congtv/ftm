@@ -113,7 +113,7 @@ namespace FTM.WebApi.Utility
             {
                 RoomName = calendar.CalendarName,
                 Description = calendar.Description,
-                IsUseable = true,
+                IsUseable = calendar.IsUseable,
                 RoomId = calendar.CalendarId
             };
         }

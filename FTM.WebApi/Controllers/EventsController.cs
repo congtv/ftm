@@ -36,10 +36,18 @@ namespace FTM.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Get([FromBody] GetEventRequestModel requestModel)
         {
+            if(requestModel.StartDateTime == null || requestModel.EndDateTime == null)
+                return BadRequest("Ngày bắt đầu và ngày kết thúc không được để trống!!!");
             if (requestModel.StartDateTime > requestModel.EndDateTime)
                 return BadRequest("Ngày bắt đầu đang bé hơn ngày kết thúc này!!!");
             if (!requestModel.CalendarIds.Any())
                 return BadRequest("Phòng book cần ít nhất là 1 phòng!!!");
+
+            if(requestModel.StartDateTime == requestModel.EndDateTime)
+            {
+                requestModel.EndDateTime = requestModel.EndDateTime.Value.CreateTime(new TimeSpan(23, 59, 59));
+            }
+
             try
             {
                 var service = new CalendarService(BaseClientServiceCreator.Create(context, clientInfo, dataStore));

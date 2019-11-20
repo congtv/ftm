@@ -66,11 +66,12 @@ $('#btnSearch').on('click', function () {
 
     $('.page-loader-wrapper').fadeIn();
 
+    var now = new Date();
     var startDate = new Date($('#startDate').val());
-    if (startDate === undefined) startDate = new Date();
+    if (startDate === undefined || isNaN(startDate.getTime())) startDate = now;
 
     var endDate = new Date($('#endDate').val());
-    if (endDate === undefined) endDate = new Date();
+    if (endDate === undefined || isNaN(endDate.getTime())) endDate = now;
 
     var time = $('#time').val();
     if (time === null || time === "") time = 1;
@@ -95,7 +96,7 @@ $('#btnSearch').on('click', function () {
         bodyTable.empty();
 
         for (var i = 0; i < data.length; i++) {
-            var btnTemplate = '<a type="button" href="' + data[i].htmlLink + '" target="_blank" class="btn bg-teal waves-effect"><i class="material-icons">link</i><span>Đi đến lịch</span></a> ';
+            var btnTemplate = '<a type="button" href="' + data[i].htmlLink + '" target="_blank" class="btn bg-light-green waves-effect"><i class="material-icons">link</i><span>Đi đến lịch</span></a> ';
             var index = parseInt(i) + 1;
             var template =
                 '<tr>' +
@@ -117,7 +118,7 @@ $('#btnSearch').on('click', function () {
         swal({
             title: "THÔNG BÁO",
             type: "warning",
-            text: "Đã có lỗi xảy ra. Vui lòng thử lại!!!"
+            text: textStatus.responseText
         });
     });
 });

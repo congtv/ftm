@@ -63,8 +63,15 @@
                             {
                                 <tr>
                                     <td>
-                                        <input type="checkbox" id="chkChon+@item.RoomId" data-room-id="@item.RoomId" class="chk-col-light-blue" checked="@item.IsUseable" />
-                                        <label for="chkChon+@item.RoomId">CHỌN</label>
+                                        @if (@item.IsUseable)
+                                        {
+                                            <input type="checkbox" id="chkChon_@item.RoomId" data-room-id="@item.RoomId" class="chk-col-light-blue" checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" id="chkChon_@item.RoomId" data-room-id="@item.RoomId" class="chk-col-light-blue"/>
+                                        }
+                                        <label for="chkChon_@item.RoomId">CHỌN</label>
                                     </td>
                                     <td>
                                         @item.RoomName

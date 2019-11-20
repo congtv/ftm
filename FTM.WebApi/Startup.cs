@@ -4,9 +4,7 @@ using FTM.WebApi.Models;
 using Google.Apis.Auth.OAuth2.Flows;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -16,7 +14,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Diagnostics;
@@ -96,8 +93,8 @@ namespace FTM.WebApi
                 //op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30);
                 op.ExpireTimeSpan = TimeSpan.FromMinutes(5);
                 op.SlidingExpiration = true;
-                op.LogoutPath = "/account/logout";
-                op.LoginPath = "/account/login";
+                op.LogoutPath = "/logout";
+                op.LoginPath = "/login";
                 op.Events = new CookieAuthenticationEvents()
                 {
                     OnValidatePrincipal = context =>
@@ -186,9 +183,6 @@ namespace FTM.WebApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole();
-            var logger = loggerFactory.CreateLogger("Default");
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -204,7 +198,6 @@ namespace FTM.WebApi
             }
             else
             {
-                //// Config for reverse proxy use subpath MathAppApi
                 //app.UsePathBase("/ftm");
                 app.UseHsts();
                 app.UseExceptionHandler(appBuilder =>
@@ -214,11 +207,6 @@ namespace FTM.WebApi
                         context.Response.StatusCode = 500;
                         await context.Response.WriteAsync("Lỗi rồi nhé, chắc là đăng nhập sai thôi!!!", encoding: Encoding.Unicode);
                     });
-                });
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
                 });
             }
             app.UseCors(x => x
@@ -233,25 +221,9 @@ namespace FTM.WebApi
 
             app.UseMvc(routes =>
             {
-                //routes
-                //.MapRoute(
-                //   name: "setting",
-                //   template: "{controller=Home}/{action=Setting}")
-                //.MapRoute(
-                //   name: "duplicate",
-                //   template: "{controller=Home}/{action=Duplicate}");
-
-                //routes.MapRoute(
-                //   name: "login",
-                //   template: "{controller=Account}/{action=Login}");
-
-                //routes.MapRoute(
-                //   name: "authen-google",
-                //   template: "{controller=Account}/{action=Authenticate}/");
-
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/");
+                    template: "{controller=Home}/{action=Index}");
 
             });
         }

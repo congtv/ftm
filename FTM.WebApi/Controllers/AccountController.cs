@@ -76,6 +76,7 @@ namespace FTM.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("logout")]
         public async Task<IActionResult> Logout(string requestPath )
         {
             await HttpContext.SignOutAsync(

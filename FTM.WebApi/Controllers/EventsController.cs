@@ -145,7 +145,7 @@ namespace FTM.WebApi.Controllers
 
                 return resultDic.Values.SelectMany(x => x);
             }
-            catch (Exception ex)
+            catch
             {
                 throw;
             }
@@ -285,7 +285,7 @@ namespace FTM.WebApi.Controllers
                 var results = new List<EventErrorResult>();
                 var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable).ToArray();
                 var timeMin = DateTime.Now;
-                var timeMax = int.TryParse(configuration["CheckViolateInDay"], out int day) ? DateTime.Now.AddDays(day) : DateTime.Now.AddDays(30);
+                var timeMax = int.TryParse(configuration["CheckDuplicateInDay"], out int day) ? DateTime.Now.AddDays(day) : DateTime.Now.AddDays(30);
 
                 foreach (var calendar in usableCalendars)
                 {

@@ -90,8 +90,8 @@ namespace FTM.WebApi
             })
             .AddCookie("Cookies", op =>
             {
-                //op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireSecond"], out int expireTime) ? expireTime : 30);
-                op.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireMinues"], out int expireTime) ? expireTime : 30);
+                //op.ExpireTimeSpan = TimeSpan.FromMinutes(5);
                 //op.Cookie = new CookieBuilder()
                 //{
                 //    HttpOnly = true,

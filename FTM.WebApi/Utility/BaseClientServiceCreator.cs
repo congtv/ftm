@@ -25,7 +25,9 @@ namespace FTM.WebApi.Utility
             });
             var ftmToken = context.FtmTokenResponses.First(x => x.UserId == Constains.UserId);
 
+#pragma warning disable CS0612 // Type or member is obsolete
             var tokenResponse = ftmToken.GetTokenResponseInfo();
+#pragma warning restore CS0612 // Type or member is obsolete
             var userCredential = new UserCredential(flow, Constains.UserId, tokenResponse);
             return new BaseClientService.Initializer() { HttpClientInitializer = userCredential };
         }

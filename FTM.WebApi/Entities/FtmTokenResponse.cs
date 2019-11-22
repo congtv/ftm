@@ -14,7 +14,9 @@ namespace FTM.WebApi.Entities
             AccessToken = token.AccessToken;
             ExpiresInSeconds = token.ExpiresInSeconds;
             IdToken = token.IdToken;
+#pragma warning disable CS0618 // Type or member is obsolete
             Issued = token.Issued;
+#pragma warning restore CS0618 // Type or member is obsolete
             IssuedUtc = token.IssuedUtc;
             RefreshToken = token.RefreshToken;
             Scope = token.Scope;

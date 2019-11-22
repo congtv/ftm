@@ -25,7 +25,6 @@ namespace FTM.WebApi.Controllers
             this.eventsController = eventsController;
         }
 
-        [Route("index")]
         public IActionResult Index()
         {
             return View();

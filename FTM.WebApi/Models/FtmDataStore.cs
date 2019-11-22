@@ -58,7 +58,9 @@ namespace FTM.WebApi.Models
                 var result = context.FtmTokenResponses.FirstOrDefault(x => x.UserId == key);
                 if (result != null)
                 {
+#pragma warning disable CS0612 // Type or member is obsolete
                     var tokenResponse = NewtonsoftJsonSerializer.Instance.Serialize(result.GetTokenResponseInfo());
+#pragma warning restore CS0612 // Type or member is obsolete
                     tcs.SetResult(NewtonsoftJsonSerializer.Instance.Deserialize<T>(tokenResponse));
                 }
                 else

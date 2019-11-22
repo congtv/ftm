@@ -31,6 +31,7 @@ namespace FTM.WebApi.Controllers
             this.context = context;
             this.configuration = configuration;
             this.clientInfo = clientInfo;
+            this.dataStore = dataStore;
         }
 
         [HttpGet]

@@ -1,0 +1,27 @@
+﻿a.btn.bg-teal.waves-effect {
+    display: block;
+}
+th {
+    word-wrap: break-word;
+}
+
+
+@media screen and (max-width: 567px){
+    #goto {
+        width:auto;
+    }
+    a.btn.bg-teal.waves-effect {
+        display: inline-block;
+    }
+    a.btn.bg-teal.waves-effect span{
+        display: none;
+    }
+
+    #btnSearch span {
+        display: none;
+    }
+
+    #btnSetting span {
+        display: none;
+    }
+}

@@ -1,27 +1,107 @@
 import React, { Component } from 'react'
+import { Link } from "react-router-dom";
 
 export default class Menu extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      menuItem: [
+        {
+          name: "Home",
+          icon: "home",
+          link: "/",
+          isActive: false,
+          isLink: true,
+          extendClass: ""
+        },
+        {
+          name: "CÀI ĐẶT PHÒNG CHO PHÉP BOOK",
+          icon: "layers",
+          link: "/setting",
+          isActive: false,
+          isLink: true,
+          extendClass: ""
+        },
+        {
+          name: "DANH SÁCH BOOK TRÙNG",
+          icon: "widgets",
+          link: "/duplicate",
+          isActive: false,
+          isLink: true,
+          extendClass: ""
+        },
+        {
+          name: "ĐĂNG NHẬP LẠI TÀI KHOẢN GOOGLE",
+          icon: "supervisor_account",
+          link: "#",
+          isActive: false,
+          isLink: false,
+          extendClass: ""
+        },
+        {
+          name: "SIGNOUT",
+          icon: "input",
+          link: "#",
+          isActive: false,
+          isLink: false,
+          extendClass: ""
+        },
+      ],
+    };
+    
+
+    this.renderMenuItem.bind(this)
+  }
+
+  renderMenuItem(itemCollection) {
+    return itemCollection.map(element => {
+      if (element.isLink === true) {
+        return (
+          <li key={element.name} className={element.isActive ? "active" : undefined}>
+            <Link to={element.link}>
+              <i className="material-icons">{element.icon}</i>
+              <span>{element.name}</span>
+            </Link>
+          </li>
+        );
+      }
+      else {
+        return (
+          <li key={element.name}>
+            <a className="{element.extendClass}">
+              <i className="material-icons">{element.icon}</i>
+              <span>{element.name}</span>
+            </a>
+          </li>
+        );
+      }
+    });
+  }
+
   render() {
     return (
-      <div class="menu">
-        <ul class="list">
+      <div className="menu">
+        <ul>
+          {this.renderMenuItem(this.state.menuItem)}
+        </ul>
+        {/* <ul class="list">
           <li class="active">
-            <a class="a__reload" asp-action="Index">
+            <Link to="/">
               <i class="material-icons">home</i>
               <span>HOME</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a class="a__reload" asp-action="Setting">
+            <Link to="setting">
               <i class="material-icons">layers</i>
               <span>CÀI ĐẶT PHÒNG CHO PHÉP BOOK</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a class="a__reload" asp-action="Duplicate">
+            <Link to="duplicate">
               <i class="material-icons">widgets</i>
               <span>DANH SÁCH BOOK TRÙNG</span>
-            </a>
+            </Link>
           </li>
           <li>
             <a id="renewGoogle">
@@ -30,12 +110,12 @@ export default class Menu extends Component {
             </a>
           </li>
           <li>
-            <a asp-action="Logout" asp-controller="Account">
+            <a>
               <i class="material-icons">input</i>
               <span>SIGNOUT</span>
             </a>
           </li>
-        </ul>
+        </ul> */}
       </div>
     )
   }

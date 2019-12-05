@@ -5,20 +5,20 @@ export default class SideBar extends Component {
   render() {
     return (
       <section>
-        <aside id="leftsidebar" class="sidebar">
-          <div class="user-info">
+        <aside id="leftsidebar" className="sidebar">
+          <div className="user-info">
           </div>
           <Menu />
-          <div class="legal">
-            <div class="copyright">
-              &copy; <a href="javascript:void(0);">Made by Sương Gió Hà Nội</a>
+          <div className="legal">
+            <div className="copyright">
+              &copy; <a href="event.preventDefault();">Made by Sương Gió Hà Nội</a>
             </div>
-            <div class="version">
+            <div className="version">
               <b>Version: </b> x.x.x
                       </div>
           </div>
         </aside>
-        <aside id="rightsidebar" class="right-sidebar">
+        {/* <aside id="rightsidebar" class="right-sidebar">
           <ul class="nav nav-tabs tab-nav-right">
             <li class="active"><a href="#skins">SKINS</a></li>
           </ul>
@@ -108,7 +108,7 @@ export default class SideBar extends Component {
               </ul>
             </div>
           </div>
-        </aside>
+        </aside> */}
       </section>
     )
   }

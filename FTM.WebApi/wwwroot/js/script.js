@@ -6,7 +6,7 @@ window.onload = function () {
     var calendarTimeOut = 7;    //7 day
     var now = new this.Date().getTime();
     var setCalendarTime = localStorage.getItem('setCalendarTime');
-    if (listCalendar === 'null' || now - setCalendarTime > calendarTimeOut * 7 * 24 * 60 * 60 * 1000) {
+    if (listCalendar === 'null' || now - setCalendarTime > calendarTimeOut * 24 * 60 * 60 * 1000) {
         $.ajax({
             url: RootUrl + '/api/calendars',
             type: 'GET',

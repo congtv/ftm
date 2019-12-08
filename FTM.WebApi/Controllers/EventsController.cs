@@ -34,6 +34,7 @@ namespace FTM.WebApi.Controllers
         }
 
         [HttpPost]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Get([FromBody] GetEventRequestModel requestModel)
         {
             if(requestModel.StartDateTime == null || requestModel.EndDateTime == null)

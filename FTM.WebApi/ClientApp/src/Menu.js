@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Link } from "react-router-dom";
+import { Link, Route } from "react-router-dom";
 
 export default class Menu extends Component {
   constructor(props) {
@@ -10,8 +10,7 @@ export default class Menu extends Component {
           name: "Home",
           icon: "home",
           link: "/",
-          isActive: false,
-          isLink: true,
+          isActive: true,
           extendClass: ""
         },
         {
@@ -19,7 +18,6 @@ export default class Menu extends Component {
           icon: "layers",
           link: "/setting",
           isActive: false,
-          isLink: true,
           extendClass: ""
         },
         {
@@ -27,95 +25,86 @@ export default class Menu extends Component {
           icon: "widgets",
           link: "/duplicate",
           isActive: false,
-          isLink: true,
           extendClass: ""
         },
-        {
-          name: "ĐĂNG NHẬP LẠI TÀI KHOẢN GOOGLE",
-          icon: "supervisor_account",
-          link: "#",
-          isActive: false,
-          isLink: false,
-          extendClass: ""
-        },
-        {
-          name: "SIGNOUT",
-          icon: "input",
-          link: "#",
-          isActive: false,
-          isLink: false,
-          extendClass: ""
-        },
+        // {
+        //   name: "ĐĂNG NHẬP LẠI TÀI KHOẢN GOOGLE",
+        //   icon: "supervisor_account",
+        //   link: "#",
+        //   isActive: false,
+        //   extendClass: ""
+        // },
+        // {
+        //   name: "SIGNOUT",
+        //   icon: "input",
+        //   link: "#",
+        //   isActive: false,
+        //   extendClass: ""
+        // },
       ],
     };
-    
-
-    this.renderMenuItem.bind(this)
   }
 
-  renderMenuItem(itemCollection) {
-    return itemCollection.map(element => {
-      if (element.isLink === true) {
-        return (
-          <li key={element.name} className={element.isActive ? "active" : undefined}>
-            <Link to={element.link}>
-              <i className="material-icons">{element.icon}</i>
-              <span>{element.name}</span>
-            </Link>
-          </li>
-        );
+  selectMenuItem(itemName) {
+    var currentState = this.state.menuItem;
+    var newMenuItem = currentState.map(item => {
+      if (item.name === itemName) {
+        item.isActive = true;
+      } else {
+        item.isActive = false;
       }
-      else {
-        return (
-          <li key={element.name}>
-            <a className="{element.extendClass}">
-              <i className="material-icons">{element.icon}</i>
-              <span>{element.name}</span>
-            </a>
-          </li>
-        );
-      }
+      return item;
+    });
+    this.setState({ menuItem: newMenuItem })
+  }
+
+  renderMenuItem(listMenu) {
+    const MenuLink = ({
+      content, // nội dung trong thẻ
+      to, // giống như href trong thẻ a
+      activeOnlyWhenExact,
+      onClick
+    }) => {
+      return (
+        <Route
+          path={to}
+          exact={activeOnlyWhenExact}
+          children={({ match }) => { //match la doi tuong xac dinh su trung khop cua URL
+            var active = match ? 'active' : '';
+
+            return (
+              <li className={active}>
+                <Link to={to} onClick={onClick}>{content}</Link>
+              </li>
+            );
+          }}
+        />
+      );
+    }
+    return listMenu.map(item => {
+      return (
+        <MenuLink
+          key={listMenu.indexOf(item)}
+          to={item.link}
+          activeOnlyWhenExact={true}
+          content={
+            <React.Fragment>
+              <i className="material-icons">{item.icon}</i>
+              <span>{item.name}</span>
+            </React.Fragment>
+          }
+          onClick={this.selectMenuItem.bind(this, item.name)}
+        />
+      )
     });
   }
 
   render() {
     return (
       <div className="menu">
-        <ul>
+        <ul className="list">
           {this.renderMenuItem(this.state.menuItem)}
         </ul>
-        {/* <ul class="list">
-          <li class="active">
-            <Link to="/">
-              <i class="material-icons">home</i>
-              <span>HOME</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="setting">
-              <i class="material-icons">layers</i>
-              <span>CÀI ĐẶT PHÒNG CHO PHÉP BOOK</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="duplicate">
-              <i class="material-icons">widgets</i>
-              <span>DANH SÁCH BOOK TRÙNG</span>
-            </Link>
-          </li>
-          <li>
-            <a id="renewGoogle">
-              <i class="material-icons">supervisor_account</i>
-              <span>ĐĂNG NHẬP LẠI TÀI KHOẢN GOOGLE</span>
-            </a>
-          </li>
-          <li>
-            <a>
-              <i class="material-icons">input</i>
-              <span>SIGNOUT</span>
-            </a>
-          </li>
-        </ul> */}
       </div>
     )
   }

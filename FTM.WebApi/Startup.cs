@@ -45,16 +45,6 @@ namespace FTM.WebApi
 
             #endregion Common
 
-            #region Reverse proxy support
-
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders =
-                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            });
-
-            #endregion Reverse proxy support
-
             services.Configure<ClientInfo>(Configuration.GetSection("Google"));
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -67,16 +57,6 @@ namespace FTM.WebApi
             services.AddScoped(typeof(FtmDataStore));
 
             services.AddDbContext<FtmDbContext>(options => options.UseSqlite(Configuration["DefaultConnection"]));
-
-            #region Swagger
-
-            // Register the Swagger generator, defining 1 or more Swagger documents
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "Free Time Manager API", Version = "v1" });
-            });
-
-            #endregion Swagger
 
             #region Middleware authentication
 
@@ -91,16 +71,6 @@ namespace FTM.WebApi
             .AddCookie("Cookies", op =>
             {
                 op.ExpireTimeSpan = TimeSpan.FromSeconds(int.TryParse(Configuration["Settings:CookieExpireMinues"], out int expireTime) ? expireTime : 30);
-                //op.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-                //op.Cookie = new CookieBuilder()
-                //{
-                //    HttpOnly = true,
-                //    Expiration = TimeSpan.FromMinutes(5),
-                //    SecurePolicy = CookieSecurePolicy.SameAsRequest,
-                //    Name = "cookie-login",
-                //    MaxAge = new TimeSpan(30, 0, 0, 0),
-                //    SameSite = SameSiteMode.Strict
-                //};
                 op.SlidingExpiration = true;
                 op.LogoutPath = "/account/logout";
                 op.LoginPath = "/account/login";
@@ -142,7 +112,6 @@ namespace FTM.WebApi
                     var email = context.JwtSecurityToken.Claims.First(x => x.Type == "email");
                     if (email.Value == Configuration["Settings:AdminEmail"])
                     {
-                        // is not used but required
                         string redirectUri;
                         if (Enviroment.IsDevelopment())
                         {
@@ -195,15 +164,6 @@ namespace FTM.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                // Enable middleware to serve generated Swagger as a JSON endpoint.
-                app.UseSwagger();
-
-                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-                // specifying the Swagger JSON endpoint.
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FTM API v1");
-                });
             }
             else
             {

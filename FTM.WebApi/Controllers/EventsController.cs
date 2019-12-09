@@ -37,16 +37,19 @@ namespace FTM.WebApi.Controllers
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Get([FromBody] GetEventRequestModel requestModel)
         {
-            if(requestModel.StartDateTime == null || requestModel.EndDateTime == null)
+            DateTime.TryParse(requestModel.StartDateTime, out DateTime startDateTime);
+            DateTime.TryParse(requestModel.EndDateTime, out DateTime endDateTime);
+
+            if (requestModel.StartDateTime == null || requestModel.EndDateTime == null)
                 return BadRequest("Ngày bắt đầu và ngày kết thúc không được để trống!!!");
-            if (requestModel.StartDateTime > requestModel.EndDateTime)
+            if (startDateTime > endDateTime)
                 return BadRequest("Ngày bắt đầu đang bé hơn ngày kết thúc này!!!");
             if (!requestModel.CalendarIds.Any())
                 return BadRequest("Phòng book cần ít nhất là 1 phòng!!!");
 
-            if(requestModel.StartDateTime == requestModel.EndDateTime)
+            if(startDateTime == endDateTime)
             {
-                requestModel.EndDateTime = requestModel.EndDateTime.Value.CreateTime(new TimeSpan(23, 59, 59));
+                endDateTime = endDateTime.CreateTime(new TimeSpan(23, 59, 59));
             }
 
             try
@@ -55,7 +58,7 @@ namespace FTM.WebApi.Controllers
                 var result = new List<GetEventResultModel>();
 
                 var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable && requestModel.CalendarIds.Contains(x.CalendarId)).ToArray();
-                var resultItems = await GetFreeTimes(service, usableCalendars, requestModel);
+                var resultItems = await GetFreeTimes(service, usableCalendars, startDateTime, endDateTime, requestModel.Time);
                 result.AddRange(resultItems);
 
                 return Ok(result);
@@ -73,12 +76,12 @@ namespace FTM.WebApi.Controllers
         /// <param name="calendars"></param>
         /// <param name="requestModel"></param>
         /// <returns></returns>
-        private async Task<IEnumerable<GetEventResultModel>> GetFreeTimes(CalendarService service, FtmCalendarInfo[] calendars, GetEventRequestModel requestModel)
+        private async Task<IEnumerable<GetEventResultModel>> GetFreeTimes(CalendarService service, FtmCalendarInfo[] calendars, DateTime startDateTime, DateTime endDateTime, double time)
         {
             try
             {
-                var inTime = requestModel.Time.DoubleToTimeSpam();
-                var resultDic = GetDateRangeRequest<List<GetEventResultModel>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
+                var inTime = time.DoubleToTimeSpam();
+                var resultDic = GetDateRangeRequest<List<GetEventResultModel>>(startDateTime, endDateTime);
 
                 #region Get time work in config
 
@@ -92,8 +95,8 @@ namespace FTM.WebApi.Controllers
                 foreach (var calendar in calendars)
                 {
                     EventsResource.ListRequest request = service.Events.List(calendar.CalendarId);
-                    request.TimeMin = requestModel.StartDateTime;
-                    request.TimeMax = requestModel.EndDateTime;
+                    request.TimeMin = startDateTime;
+                    request.TimeMax = endDateTime;
                     request.ShowDeleted = false;
                     request.SingleEvents = true;
                     request.MaxResults = 999;
@@ -104,7 +107,7 @@ namespace FTM.WebApi.Controllers
 
                     #region Check day hasn't any event
 
-                    var dateDic = GetDateRangeRequest<List<Event>>(requestModel.StartDateTime.Value, requestModel.EndDateTime.Value);
+                    var dateDic = GetDateRangeRequest<List<Event>>(startDateTime, endDateTime);
                     foreach (var key in itemDic.Keys)
                     {
                         dateDic[key] = itemDic[key];
@@ -162,6 +165,11 @@ namespace FTM.WebApi.Controllers
         {
             Dictionary<DateTime, T> dateDic = new Dictionary<DateTime, T>();
             var currentDay = start;
+            if(currentDay.IsDateEquals(end))
+            {
+                dateDic.Add(currentDay, new T());
+            }
+
             while (currentDay.AddDays(1) <= end)
             {
                 currentDay = currentDay.AddDays(1).CreateTime(new TimeSpan(0, 0, 0));
@@ -299,6 +307,8 @@ namespace FTM.WebApi.Controllers
                     request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
                     Events events = await request.ExecuteAsync();
 
+                    if (!events.Items.Any())
+                        continue;
                     var itemDic = events.Items.GroupBy(x => x.Start.DateTime.Value.Date, x => x).ToDictionary(x => x.Key, x => x.ToList());
 
                     foreach (var key in itemDic.Keys)
@@ -317,9 +327,9 @@ namespace FTM.WebApi.Controllers
 
                 return Ok(results);
             }
-            catch
+            catch(Exception ex)
             {
-                return NotFound();
+                return NotFound(ex.Message);
             }
         }
 

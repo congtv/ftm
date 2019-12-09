@@ -18,17 +18,17 @@ export default class App extends Component {
 
         localStorage.setItem('useableCalendars', JSON.stringify(useableCalendars));
         var lastTimeRefresh = localStorage.getItem('lastTimeRefresh');
-        if(lastTimeRefresh === "undefined"){
+        if (lastTimeRefresh === "undefined") {
           localStorage.setItem('lastTimeRefresh', now);
           lastTimeRefresh = now;
         }
 
-        if(localStorage.getItem('bookableCalendar') === null){
+        if (localStorage.getItem('bookableCalendar') === null) {
           localStorage.setItem('bookableCalendar', JSON.stringify(useableCalendars))
           return;
         }
         var refreshDay = config.getDayToRefreshLocalStorage();
-        
+
         if (now - lastTimeRefresh > refreshDay * 24 * 60 * 60 * 1000) {
           localStorage.setItem('lastTimeRefresh', now);
           localStorage.setItem('bookableCalendar', JSON.stringify(useableCalendars))

@@ -29,6 +29,7 @@ export default class Home extends Component {
       if (item.isUseable) {
         return item.roomId;
       }
+      return null;
     }).map(item => item.roomId);
 
     if (calendarIds === null || calendarIds.length <= 0) {
@@ -155,7 +156,7 @@ export default class Home extends Component {
                       <tr>
                         <th>#</th>
                         <th>TÊN PHÒNG</th>
-                        <th>NGÀY</th>
+                        <th>NGÀY (yyyy/mm/dd)</th>
                         <th>THỜI GIAN</th>
                         <th id="goto" width="15%">LINK</th>
                       </tr>

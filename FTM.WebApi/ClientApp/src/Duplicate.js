@@ -21,7 +21,7 @@ export default class Duplicate extends Component {
     $('.page-loader-wrapper').fadeIn();
     axios.post('events/duplicate')
       .then((response) => {
-        this.setState({duplicates: response.data})
+        this.setState({ duplicates: response.data })
         Swal.fire({
           text: 'Đã tìm thấy' + response.data.length + ' lịch bị trùng!!!'
         });
@@ -38,14 +38,15 @@ export default class Duplicate extends Component {
   }
 
   render() {
-    const TRow = (item) => (
-      <React.Fragment>
+    const duplicates = this.state.duplicates;
+    const TRow = (key, item) => (
+      <React.Fragment key={key}>
         <tr>
           <td>{item.summary}</td>
           <td>{item.creator}</td>
           <td>{item.description}</td>
           <td>
-            <a type="button" href={item.htmlLink} target="_blank" className="btn bg-light-green waves-effect">
+            <a type="button" href={item.htmlLink} target="_blank" rel="noopener" className="btn bg-light-green waves-effect">
               <i className="material-icons">link</i>
               <span>Đi đến lịch</span>
             </a>
@@ -74,7 +75,7 @@ export default class Duplicate extends Component {
                       </tr>
                     </thead>
                     <tbody>
-                      {this.state.duplicates.map(item => TRow(item))}
+                      {duplicates.map(item => TRow(duplicates.indexOf(item), item))}
                     </tbody>
                   </table>
                 </div>

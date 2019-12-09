@@ -29,8 +29,8 @@ export default class Setting extends Component {
   }
 
   onCheckChanged(item, e) {
-    var newItem =  this.state.calendars.map(i => {
-      if(i.roomId === item.roomId){
+    var newItem = this.state.calendars.map(i => {
+      if (i.roomId === item.roomId) {
         i.isUseable = !i.isUseable;
       }
       return i;
@@ -42,7 +42,7 @@ export default class Setting extends Component {
 
   tableBodyRender() {
     var calendars = this.state.calendars;
-    if(calendars === null || calendars === undefined)
+    if (calendars === null || calendars === undefined)
       return null;
     return calendars.map(cal => {
       return <TableDataRow key={calendars.indexOf(cal)} onCheckChanged={this.onCheckChanged} isHome={false} index={calendars.indexOf(cal) + 1} calendar={cal} />;

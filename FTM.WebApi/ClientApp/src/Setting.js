@@ -25,20 +25,20 @@ export default class Setting extends Component {
   }
 
   onSave() {
+    debugger;
     localStorage.setItem('bookableCalendar', JSON.stringify(this.state.calendars));
   }
 
   onCheckChanged(item, e) {
-    debugger;
-    // var newItem =  this.state.calendars.map(i => {
-    //   if(i.roomId === item.roomId){
-    //     i.isUseable = !i.isUseable;
-    //   }
-    //   return i;
-    // });
-    // this.setState({
-    //   calendars: newItem
-    // });
+    var newItem =  this.state.calendars.map(i => {
+      if(i.roomId === item.roomId){
+        i.isUseable = !i.isUseable;
+      }
+      return i;
+    });
+    this.setState({
+      calendars: newItem
+    });
   }
 
   tableBodyRender() {

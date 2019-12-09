@@ -26,6 +26,7 @@ export default class Home extends Component {
 
   onSearch() {
     var listInStorage = localStorage.getItem('bookableCalendar');
+    debugger;
     var calendarIds = listInStorage === null ? null : JSON.parse(listInStorage).filter(item => {
       if (item.isUseable) {
         return item.roomId;

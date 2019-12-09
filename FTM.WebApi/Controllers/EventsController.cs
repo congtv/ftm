@@ -54,7 +54,7 @@ namespace FTM.WebApi.Controllers
                 var service = new CalendarService(BaseClientServiceCreator.Create(context, clientInfo, dataStore));
                 var result = new List<GetEventResultModel>();
 
-                var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable).ToArray();
+                var usableCalendars = context.FtmCalendarInfo.Where(x => x.IsUseable && requestModel.CalendarIds.Contains(x.CalendarId)).ToArray();
                 var resultItems = await GetFreeTimes(service, usableCalendars, requestModel);
                 result.AddRange(resultItems);
 

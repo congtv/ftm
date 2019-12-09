@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 import TableDataRow from './TableDataRow'
+import $ from 'jquery';
+import 'sweetalert2/src/sweetalert2.scss'
+import Swal from 'sweetalert2/dist/sweetalert2.js'
 
 export default class Setting extends Component {
   constructor(props) {
@@ -7,12 +10,6 @@ export default class Setting extends Component {
 
     this.state = {
       calendars: [
-        {
-          roomId: '',
-          roomName: '',
-          description: '',
-          isUseable: false
-        }
       ]
     };
     this.tableBodyRender = this.tableBodyRender.bind(this);
@@ -22,11 +19,13 @@ export default class Setting extends Component {
   componentDidMount() {
     var listInStorage = JSON.parse(localStorage.getItem('bookableCalendar'));
     this.setState({ calendars: listInStorage });
+    $('.page-loader-wrapper').fadeOut();
   }
 
   onSave() {
     debugger;
     localStorage.setItem('bookableCalendar', JSON.stringify(this.state.calendars));
+    Swal.fire('Lưu thành công!!!');
   }
 
   onCheckChanged(item, e) {

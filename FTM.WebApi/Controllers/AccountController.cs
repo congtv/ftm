@@ -118,7 +118,8 @@ namespace FTM.WebApi.Controllers
                 else
                 {
                     var calendarDb = calendars.Select(x => x.CalendarId);
-                    if (calendars.Length != result.Items.Count && result.Items.Any(x => !calendarDb.Contains(x.Id)))
+                    if (calendars.Length != result.Items.Count 
+                        && result.Items.Any(x => !calendarDb.Contains(x.Id)))
                     {
                         //Remove all room
                         context.FtmCalendarInfo.RemoveRange(calendars);
@@ -137,6 +138,8 @@ namespace FTM.WebApi.Controllers
             foreach (var calendar in calendars)
             {
                 if (calendar.Id == configuration["Settings:AdminEmail"])
+                    continue;
+                if (calendar.Id.Contains("vietnamese") || calendar.Id.Contains("holiday") || calendar.Id.Contains("contacts"))
                     continue;
                 FtmCalendarInfo room = new FtmCalendarInfo()
                 {

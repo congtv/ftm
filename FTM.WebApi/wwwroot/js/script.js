@@ -83,8 +83,8 @@ $('#btnSearch').on('click', function () {
     if (time === null || time === "") time = 1;
 
     var data = {
-        StartDateTime: startDate,
-        EndDateTime: endDate,
+        StartDateTime: startDate.toLocaleDateString(),
+        EndDateTime: endDate.toLocaleDateString(),
         Time: time,
         IsAdmin: true,
         CalendarIds: calendarIds

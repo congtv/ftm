@@ -10,18 +10,16 @@ export default class Home extends Component {
     super(props);
     this.state = {
       freeTime: [
-        {
-          calendarId: '',
-          calendarName: '',
-          startTime: new Date(),
-          endTime: new Date(),
-          htmlLink: ''
-        }
       ]
     };
     this.tableBodyRender = this.tableBodyRender.bind(this);
     this.onSearch = this.onSearch.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
+  }
+
+  componentDidMount() {
+    window["LoadDateRange"]();
+    $('.page-loader-wrapper').fadeOut();
   }
 
   onSearch() {
@@ -58,8 +56,8 @@ export default class Home extends Component {
     var axios = config.getAxiosInstance();
 
     axios.post('events', {
-      StartDateTime: startDate,
-      EndDateTime: endDate,
+      StartDateTime: startDate.toLocaleDateString(),
+      EndDateTime: endDate.toLocaleDateString(),
       Time: time,
       IsAdmin: true,
       CalendarIds: calendarIds
@@ -143,8 +141,6 @@ export default class Home extends Component {
               </div>
             </div>
           </div>
-
-
         </div>
         <div className="row clearfix">
           <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">

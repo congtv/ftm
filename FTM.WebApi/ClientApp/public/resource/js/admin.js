@@ -455,15 +455,26 @@ $.AdminBSB.browser = {
 }
 //==========================================================================================================================
 
-$(function () {
-    $.AdminBSB.browser.activate();
-    $.AdminBSB.leftSideBar.activate();
-    $.AdminBSB.rightSideBar.activate();
-    $.AdminBSB.navbar.activate();
-    $.AdminBSB.dropdownMenu.activate();
-    $.AdminBSB.input.activate();
-    $.AdminBSB.select.activate();
-    $.AdminBSB.search.activate();
+function LoadDateRange(){
+    debugger;
+    $('#bs_datepicker_range_container').datepicker({
+        autoclose: true,
+        container: '#bs_datepicker_range_container',
+        format: 'yyyy/mm/dd',
+        todayHighlight: true,
+        todayBtn: true
+    });
+}
 
-    setTimeout(function () { $('.page-loader-wrapper').fadeOut(); }, 50);
-});
+// $(function () {
+//     $.AdminBSB.browser.activate();
+//     $.AdminBSB.leftSideBar.activate();
+//     $.AdminBSB.rightSideBar.activate();
+//     $.AdminBSB.navbar.activate();
+//     $.AdminBSB.dropdownMenu.activate();
+//     $.AdminBSB.input.activate();
+//     $.AdminBSB.select.activate();
+//     $.AdminBSB.search.activate();
+
+//     setTimeout(function () { $('.page-loader-wrapper').fadeOut(); }, 50);
+// });

@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import {
   Switch,
-  Route
+  Route,
+  Redirect
 } from "react-router-dom";
 import Setting from './Setting';
 import Duplicate from './Duplicate';
@@ -14,14 +15,17 @@ export default class Main extends Component {
         <section className="content">
           <div className="container-fluid">
             <Switch>
-              <Route path="/setting">
+              <Route path="/cai-dat">
                 <Setting />
               </Route>
-              <Route path="/duplicate">
+              <Route path="/danh-sach-trung">
                 <Duplicate />
               </Route>
-              <Route path="/">
+              <Route path="/tim-phong-trong">
                 <Home />
+              </Route>
+              <Route path="/">
+              <Redirect to="/tim-phong-trong" />
               </Route>
             </Switch>
           </div>

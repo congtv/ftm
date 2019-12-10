@@ -7,23 +7,23 @@ export default class Menu extends Component {
     this.state = {
       menuItem: [
         {
-          name: "Home",
+          name: "TÌM PHÒNG TRỐNG",
           icon: "home",
-          link: "/",
+          link: "/tim-phong-trong",
           isActive: true,
           extendClass: ""
         },
         {
           name: "CÀI ĐẶT PHÒNG CHO PHÉP BOOK",
           icon: "layers",
-          link: "/setting",
+          link: "/cai-dat",
           isActive: false,
           extendClass: ""
         },
         {
           name: "DANH SÁCH BOOK TRÙNG",
           icon: "widgets",
-          link: "/duplicate",
+          link: "/danh-sach-trung",
           isActive: false,
           extendClass: ""
         },
